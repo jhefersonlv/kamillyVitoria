@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kamilly Vitória | Beauty Art – Nail & Beauty Home Care Premium</title>
+  <meta name="description"
+    content="Serviço premium de nail art e beleza em domicílio. O luxo do salão no conforto da sua casa. Agende agora com Kamilly Vitória Beauty Art." />
+  <meta name="keywords" content="nail art, manicure a domicílio, beauty art, unhas, beleza em casa, KV nails" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Lexend:wght@200;300;400;500;600&family=Great+Vibes&display=swap"
+    rel="stylesheet" />
+
+
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
+
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+
+<body>
+
+  <!-- ═══════════════════════ HEADER / NAV ═══════════════════════ -->
+  <header class="site-header" id="site-header">
+    <nav class="nav-container">
+      <a href="#hero" class="nav-logo" id="nav-logo-link" aria-label="Kamilly Vitória Beauty Art – Início">
+        <div class="logo-mark">
+          <img src="assets/img/logo.png" alt="Kamilly Vitória Beauty Art" class="logo-img" />
+        </div>
+      </a>
+
+      <ul class="nav-links" id="nav-links" role="navigation">
+        <li><a href="#portfolio" class="nav-link">Portfólio</a></li>
+        <li><a href="#services" class="nav-link">Serviços</a></li>
+        <li><a href="#contact" class="nav-link">Contato</a></li>
+        <li>
+          <button class="btn-primary btn-sm" id="nav-cta-btn" onclick="openModal()">
+            Agendar
+          </button>
+        </li>
+      </ul>
+
+      <button class="hamburger" id="hamburger-btn" aria-label="Abrir menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </nav>
+  </header>
+
+  <!-- ═══════════════════════ HERO ═══════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-media">
+      <img src="assets/img/hero.png" alt="Arte em unhas profissional – Kamilly Vitória Beauty Art" class="hero-img"
+        loading="eager" fetchpriority="high" />
+      <div class="hero-overlay"></div>
+    </div>
+
+    <div class="hero-content">
+      <!-- Logo branco principal -->
+      <div class="hero-logo" aria-label="Kamilly Vitória Beauty Art">
+        <img
+          src="assets/img/logo.png"
+          alt="Kamilly Vitória Beauty Art"
+          class="hero-logo-img"
+        />
+      </div>
+
+      <div class="hero-divider" aria-hidden="true"></div>
+
+      <h1 class="hero-headline">
+        O luxo do salão<br />
+        <em>no conforto da sua casa</em>
+      </h1>
+
+      <p class="hero-sub">
+        Nail art profissional &amp; beleza personalizada — onde você estiver.
+      </p>
+
+      <div class="hero-actions">
+        <button class="btn-primary btn-hero" id="hero-cta-btn" onclick="openModal()">
+          <i class="ph ph-calendar-check" aria-hidden="true"></i>
+          Agendar Agora
+        </button>
+        <a href="#portfolio" class="btn-ghost">
+          Ver Portfólio
+          <i class="ph ph-arrow-down" aria-hidden="true"></i>
+        </a>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat"><span class="stat-num">500+</span><span class="stat-label">Clientes atendidas</span></div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat"><span class="stat-num">98%</span><span class="stat-label">Satisfação</span></div>
+        <div class="stat-sep" aria-hidden="true"></div>
+        <div class="stat"><span class="stat-num">5★</span><span class="stat-label">Avaliação</span></div>
+      </div>
+    </div>
+
+    <a href="#portfolio" class="scroll-indicator" aria-label="Rolar para baixo">
+      <span class="scroll-line"></span>
+    </a>
+  </section>
+
+  <!-- ═══════════════════════ PORTFOLIO ═══════════════════════ -->
+  <section class="section portfolio-section" id="portfolio">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Portfólio</span>
+        <h2 class="section-title">Arte que fala<br /><em>por si só</em></h2>
+        <p class="section-desc">Cada detalhe é cuidadosamente pensado para realçar a sua beleza única.</p>
+      </div>
+
+      <div class="bento-grid" id="portfolio-grid" role="list">
+        <div class="bento-item bento-featured" role="listitem">
+          <img src="assets/img/g1.png" alt="Nail art floral em rosa com folha dourada" loading="lazy" />
+          <div class="bento-hover">
+            <span class="bento-label">Floral Luxo</span>
+            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+          </div>
+        </div>
+
+        <div class="bento-item bento-tall" role="listitem">
+          <img src="assets/img/g2.png" alt="Unhas bordo velvet com pedras luxuosas" loading="lazy" />
+          <div class="bento-hover">
+            <span class="bento-label">Velvet Borgonha</span>
+            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+          </div>
+        </div>
+
+        <div class="bento-item" role="listitem">
+          <img src="assets/img/g3.png" alt="Unhas chrome espelhado prata" loading="lazy" />
+          <div class="bento-hover">
+            <span class="bento-label">Chrome Prata</span>
+            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+          </div>
+        </div>
+
+        <div class="bento-item bento-wide" role="listitem">
+          <img src="assets/img/g4.png" alt="Unhas holográficas com glitter e pedras" loading="lazy" />
+          <div class="bento-hover">
+            <span class="bento-label">Holográfico & Cristais</span>
+            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+          </div>
+        </div>
+
+        <div class="bento-item" role="listitem">
+          <img src="assets/img/g5.png" alt="Manicure minimalista nude com art deco dourado" loading="lazy" />
+          <div class="bento-hover">
+            <span class="bento-label">Art Déco Nude</span>
+            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ SERVICES ═══════════════════════ -->
+  <section class="section services-section" id="services">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Serviços</span>
+        <h2 class="section-title">O melhor da beleza,<br /><em>na sua casa</em></h2>
+        <p class="section-desc">Selecione o serviço ideal e agende com praticidade pelo WhatsApp.</p>
+      </div>
+
+      <div class="services-grid" role="list">
+
+        <!-- CARD: Pé — trocar src pela foto do serviço de pé -->
+        <article class="service-card" role="listitem">
+          <div class="service-card-img">
+            <img src="assets/img/g1.png" alt="Serviço de pé – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-foot-prints"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Pé</h3>
+            <p class="service-price">R$ 35,00</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Pé', 35)" aria-label="Agendar Pé">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+        <!-- CARD: Mão — trocar src pela foto do serviço de mão -->
+        <article class="service-card" role="listitem">
+          <div class="service-card-img">
+            <img src="assets/img/g2.png" alt="Serviço de mão – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-hand"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Mão</h3>
+            <p class="service-price">R$ 25,00</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Mão', 25)" aria-label="Agendar Mão">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+        <!-- CARD: Blindagem — trocar src pela foto do serviço de blindagem -->
+        <article class="service-card" role="listitem">
+          <div class="service-card-img">
+            <img src="assets/img/g3.png" alt="Blindagem de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-shield-check"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Blindagem</h3>
+            <p class="service-price service-price--consult">A consultar</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Blindagem', null)" aria-label="Agendar Blindagem">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+        <!-- CARD: Esmaltação em Gel — trocar src pela foto do serviço -->
+        <article class="service-card service-card--highlight" role="listitem">
+          <div class="service-badge">Mais popular</div>
+          <div class="service-card-img">
+            <img src="assets/img/g4.png" alt="Esmaltação em gel – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-sparkle"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Esmaltação em Gel</h3>
+            <p class="service-price service-price--consult">A consultar</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Esmaltação em Gel', null)" aria-label="Agendar Esmaltação em Gel">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+        <!-- CARD: Molde F1 — trocar src pela foto do serviço -->
+        <article class="service-card" role="listitem">
+          <div class="service-card-img">
+            <img src="assets/img/g5.png" alt="Molde F1 – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-star"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Molde F1</h3>
+            <p class="service-price">R$ 55,00</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Molde F1', 55)" aria-label="Agendar Molde F1">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+        <!-- CARD: Tips — trocar src pela foto do serviço de tips -->
+        <article class="service-card" role="listitem">
+          <div class="service-card-img">
+            <img src="assets/img/g3.png" alt="Tips de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-crown-simple"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Tips</h3>
+            <p class="service-price">R$ 60,00</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Tips', 60)" aria-label="Agendar Tips">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+        <!-- CARD: Fibra — trocar src pela foto do serviço de fibra -->
+        <article class="service-card" role="listitem">
+          <div class="service-card-img">
+            <img src="assets/img/g2.png" alt="Fibra de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
+            <div class="service-card-img-overlay" aria-hidden="true"></div>
+            <span class="service-icon-badge"><i class="ph ph-flower"></i></span>
+          </div>
+          <div class="service-body">
+            <h3 class="service-title">Fibra</h3>
+            <p class="service-price">R$ 90,00</p>
+          </div>
+          <button class="service-btn" onclick="selectService('Fibra', 90)" aria-label="Agendar Fibra">
+            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+          </button>
+        </article>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ TESTIMONIALS ═══════════════════════ -->
+  <section class="section testimonials-section" id="contact">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">Depoimentos</span>
+        <h2 class="section-title">O que nossas clientes<br /><em>dizem</em></h2>
+      </div>
+
+      <div class="testimonials-grid" role="list">
+        <blockquote class="testimonial-card" role="listitem">
+          <div class="stars" aria-label="5 estrelas">★★★★★</div>
+          <p class="testimonial-text">"Simplesmente incrível! As unhas ficaram perfeitas, com acabamento de salão de
+            luxo. Nunca mais vou sair de casa para fazer as unhas!"</p>
+          <footer class="testimonial-author">
+            <div class="author-avatar" aria-hidden="true">A</div>
+            <div>
+              <strong>Ana Paula S.</strong>
+              <span>Nails Premium</span>
+            </div>
+          </footer>
+        </blockquote>
+
+        <blockquote class="testimonial-card testimonial-card--featured" role="listitem">
+          <div class="stars" aria-label="5 estrelas">★★★★★</div>
+          <p class="testimonial-text">"A Kamilly é uma artista! Atendimento impecável, pontual, e o resultado ficou
+            ainda melhor do que eu imaginava. Super recomendo!"</p>
+          <footer class="testimonial-author">
+            <div class="author-avatar" aria-hidden="true">M</div>
+            <div>
+              <strong>Marina C.</strong>
+              <span>Beauty Art</span>
+            </div>
+          </footer>
+        </blockquote>
+
+        <blockquote class="testimonial-card" role="listitem">
+          <div class="stars" aria-label="5 estrelas">★★★★★</div>
+          <p class="testimonial-text">"Agenda fácil, preço justo e qualidade excepcional. Atendimento super carinhoso e
+            profissional. Já marquei o próximo horário!"</p>
+          <footer class="testimonial-author">
+            <div class="author-avatar" aria-hidden="true">J</div>
+            <div>
+              <strong>Julia R.</strong>
+              <span>Nails Premium</span>
+            </div>
+          </footer>
+        </blockquote>
+      </div>
+
+      <!-- WhatsApp CTA -->
+      <div class="whatsapp-cta-block">
+        <div class="whatsapp-cta-text">
+          <h3>Tem alguma dúvida?</h3>
+          <p>Fale diretamente com a Kamilly pelo WhatsApp.</p>
+        </div>
+        <a href="https://wa.me/5500000000000?text=Olá%20Kamilly!%20Gostaria%20de%20saber%20mais%20sobre%20os%20seus%20serviços."
+          target="_blank" rel="noopener noreferrer" class="btn-whatsapp" id="whatsapp-direct-btn"
+          aria-label="Falar com Kamilly no WhatsApp">
+          <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+          Falar no WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════ FOOTER ═══════════════════════ -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <div class="logo-text">
+          <span class="logo-name">Kamilly Vitória</span>
+          <span class="logo-tag">Beauty Art</span>
+        </div>
+        <p class="footer-tagline">O luxo do salão no conforto da sua casa.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="#portfolio">Portfólio</a>
+        <a href="#services">Serviços</a>
+        <a href="#contact">Contato</a>
+      </div>
+
+      <div class="footer-social">
+        <a href="#" aria-label="Instagram de Kamilly Vitória" class="social-link">
+          <i class="ph ph-instagram-logo" aria-hidden="true"></i>
+        </a>
+        <a href="https://wa.me/5500000000000" target="_blank" rel="noopener noreferrer"
+          aria-label="WhatsApp de Kamilly Vitória" class="social-link">
+          <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+        </a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2026 Kamilly Vitória Beauty Art. Todos os direitos reservados.</p>
+    </div>
+  </footer>
+
+  <!-- ═══════════════════════ BOOKING MODAL ═══════════════════════ -->
+  <div class="modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title"
+    aria-hidden="true">
+    <div class="modal" id="booking-modal">
+      <button class="modal-close" id="modal-close-btn" onclick="closeModal()" aria-label="Fechar modal">
+        <i class="ph ph-x" aria-hidden="true"></i>
+      </button>
+
+      <!-- Step indicators -->
+      <div class="modal-steps" aria-label="Passos do agendamento">
+        <div class="step-dot active" id="step-dot-1" aria-label="Passo 1: Serviço"></div>
+        <div class="step-line" id="step-line-1" aria-hidden="true"></div>
+        <div class="step-dot" id="step-dot-2" aria-label="Passo 2: Data e Hora"></div>
+        <div class="step-line" id="step-line-2" aria-hidden="true"></div>
+        <div class="step-dot" id="step-dot-3" aria-label="Passo 3: Confirmar"></div>
+      </div>
+
+      <!-- ── Step 1: Service Selection ── -->
+      <div class="modal-step" id="modal-step-1" role="region" aria-labelledby="step1-title">
+        <h2 class="modal-title" id="modal-title">Escolha o Serviço</h2>
+        <p class="modal-subtitle">Selecione o que você deseja agendar</p>
+
+        <div class="service-options" role="radiogroup" aria-label="Serviços disponíveis">
+          <label class="service-option" id="opt-nails">
+            <input type="radio" name="service" value="Nails Premium" />
+            <div class="service-option-inner">
+              <i class="ph ph-sparkle" aria-hidden="true"></i>
+              <span class="opt-name">Nails Premium</span>
+              <span class="opt-desc">Gel, acrílico, fibra, nail art</span>
+            </div>
+          </label>
+
+          <label class="service-option" id="opt-beauty">
+            <input type="radio" name="service" value="Beauty Art" />
+            <div class="service-option-inner">
+              <i class="ph ph-flower" aria-hidden="true"></i>
+              <span class="opt-name">Beauty Art</span>
+              <span class="opt-desc">Sobrancelha, depilação, make</span>
+            </div>
+          </label>
+
+          <label class="service-option service-option--disabled" id="opt-combo" aria-disabled="true">
+            <input type="radio" name="service" value="KV Combo" disabled />
+            <div class="service-option-inner">
+              <i class="ph ph-crown-simple" aria-hidden="true"></i>
+              <span class="opt-name">KV Combo <span class="badge-soon">Em breve</span></span>
+              <span class="opt-desc">Pacote completo premium</span>
+            </div>
+          </label>
+        </div>
+
+        <button class="btn-primary btn-full" id="step1-next" onclick="goToStep(2)" disabled>
+          Próximo <i class="ph ph-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- ── Step 2: Date & Time ── -->
+      <div class="modal-step hidden" id="modal-step-2" role="region" aria-labelledby="step2-title">
+        <button class="back-btn" onclick="goToStep(1)" aria-label="Voltar ao passo 1">
+          <i class="ph ph-arrow-left" aria-hidden="true"></i> Voltar
+        </button>
+        <h2 class="modal-title" id="step2-title">Data &amp; Horário</h2>
+        <p class="modal-subtitle">Selecione quando deseja ser atendida</p>
+
+        <!-- Calendar -->
+        <div class="calendar" id="calendar" role="application" aria-label="Calendário de agendamento">
+          <div class="cal-nav">
+            <button class="cal-nav-btn" id="cal-prev" onclick="changeMonth(-1)" aria-label="Mês anterior">
+              <i class="ph ph-caret-left" aria-hidden="true"></i>
+            </button>
+            <span class="cal-month-label" id="cal-month-label" aria-live="polite"></span>
+            <button class="cal-nav-btn" id="cal-next" onclick="changeMonth(1)" aria-label="Próximo mês">
+              <i class="ph ph-caret-right" aria-hidden="true"></i>
+            </button>
+          </div>
+          <div class="cal-weekdays" aria-hidden="true">
+            <span>Dom</span><span>Seg</span><span>Ter</span><span>Qua</span>
+            <span>Qui</span><span>Sex</span><span>Sáb</span>
+          </div>
+          <div class="cal-days" id="cal-days" role="grid" aria-label="Dias do mês"></div>
+        </div>
+
+        <!-- Time slots -->
+        <div class="time-slots-section" id="time-slots-section" aria-label="Horários disponíveis" hidden>
+          <h3 class="time-slots-title">Escolha o horário</h3>
+          <div class="time-slots" id="time-slots" role="group" aria-label="Horários disponíveis"></div>
+        </div>
+
+        <button class="btn-primary btn-full" id="step2-next" onclick="goToStep(3)" disabled>
+          Revisar Agendamento <i class="ph ph-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+
+      <!-- ── Step 3: Confirm ── -->
+      <div class="modal-step hidden" id="modal-step-3" role="region" aria-labelledby="step3-title">
+        <button class="back-btn" onclick="goToStep(2)" aria-label="Voltar ao passo 2">
+          <i class="ph ph-arrow-left" aria-hidden="true"></i> Voltar
+        </button>
+        <h2 class="modal-title" id="step3-title">Confirmar Agendamento</h2>
+        <p class="modal-subtitle">Revise os detalhes antes de finalizar</p>
+
+        <div class="booking-summary" id="booking-summary" role="region" aria-label="Resumo do agendamento">
+          <div class="summary-item">
+            <i class="ph ph-sparkle" aria-hidden="true"></i>
+            <div>
+              <span class="summary-label">Serviço</span>
+              <strong class="summary-value" id="summary-service">—</strong>
+            </div>
+          </div>
+          <div class="summary-item">
+            <i class="ph ph-calendar" aria-hidden="true"></i>
+            <div>
+              <span class="summary-label">Data</span>
+              <strong class="summary-value" id="summary-date">—</strong>
+            </div>
+          </div>
+          <div class="summary-item">
+            <i class="ph ph-clock" aria-hidden="true"></i>
+            <div>
+              <span class="summary-label">Horário</span>
+              <strong class="summary-value" id="summary-time">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <div class="confirm-note">
+          <i class="ph ph-info" aria-hidden="true"></i>
+          <p>Você será redirecionada ao WhatsApp para confirmar o agendamento com a Kamilly.</p>
+        </div>
+
+        <button class="btn-whatsapp btn-full" id="whatsapp-btn" onclick="finalizeOnWhatsApp()">
+          <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+          Finalizar no WhatsApp
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ DISCOUNT QUESTION MODAL ═══════════════════════ -->
+  <div class="modal-backdrop" id="discount-backdrop" role="dialog" aria-modal="true"
+    aria-labelledby="discount-modal-title" aria-hidden="true">
+    <div class="modal modal--small" id="discount-modal">
+      <button class="modal-close" onclick="closeDiscountModal()" aria-label="Fechar modal">
+        <i class="ph ph-x" aria-hidden="true"></i>
+      </button>
+
+      <div class="discount-icon" aria-hidden="true">
+        <i class="ph ph-tag"></i>
+      </div>
+
+      <h2 class="modal-title" id="discount-modal-title">Deseja ganhar um desconto?</h2>
+      <p class="modal-subtitle">Selecionando mais de um serviço você pode economizar!</p>
+
+      <div class="discount-service-preview" id="discount-service-preview"></div>
+
+      <div class="discount-actions">
+        <button class="btn-ghost btn-full" onclick="discountNo()">
+          Não, quero apenas este serviço
+        </button>
+        <button class="btn-primary btn-full" onclick="discountYes()">
+          <i class="ph ph-tag" aria-hidden="true"></i>
+          Sim, quero selecionar mais!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════ MULTI-SELECT MODAL ═══════════════════════ -->
+  <div class="modal-backdrop" id="multiselect-backdrop" role="dialog" aria-modal="true"
+    aria-labelledby="multiselect-modal-title" aria-hidden="true">
+    <div class="modal" id="multiselect-modal">
+      <button class="modal-close" onclick="closeMultiSelectModal()" aria-label="Fechar modal">
+        <i class="ph ph-x" aria-hidden="true"></i>
+      </button>
+
+      <h2 class="modal-title" id="multiselect-modal-title">Selecione os Serviços</h2>
+      <p class="modal-subtitle">Marque todos os que deseja agendar</p>
+
+      <div class="multiselect-services" id="multiselect-services" role="group" aria-label="Serviços disponíveis">
+        <!-- preenchido via JS -->
+      </div>
+
+      <div class="multiselect-total-bar">
+        <span class="total-label">Total estimado:</span>
+        <span class="total-value" id="multiselect-total">R$ 0,00</span>
+      </div>
+
+      <button class="btn-whatsapp btn-full" id="multiselect-confirm-btn" onclick="finalizeMultiSelect()" disabled>
+        <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+        Agendar no WhatsApp
+      </button>
+    </div>
+  </div>
+
+  <!-- Floating WhatsApp button -->
+  <a href="https://wa.me/5500000000000?text=Olá%20Kamilly!%20Gostaria%20de%20agendar%20um%20serviço." target="_blank"
+    rel="noopener noreferrer" class="fab-whatsapp" id="fab-whatsapp" aria-label="Contato via WhatsApp">
+    <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
+  </a>
+
+  <script src="assets/js/main.js"></script>
+</body>
+
+</html>
