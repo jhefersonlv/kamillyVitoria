@@ -34,7 +34,9 @@ async function loadScheduleConfig() {
   try {
     const snap = await db.collection('config').doc('schedule').get();
     if (snap.exists) scheduleConfig = { ...scheduleConfig, ...snap.data() };
-  } catch (_) { /* usa fallback */ }
+  } catch (e) {
+    console.warn('[KV] loadScheduleConfig falhou, usando padrão:', e.message);
+  }
 }
 
 /* Formata Date → 'YYYY-MM-DD' */
@@ -232,25 +234,28 @@ function renderCalendar() {
 
 async function applyBlockedDates(year, month) {
   try {
-    const prefix  = `${year}-${String(month + 1).padStart(2, '0')}`;
-    const snap    = await db.collection('dateConfig')
-      .where(firebase.firestore.FieldPath.documentId(), '>=', `${prefix}-01`)
-      .where(firebase.firestore.FieldPath.documentId(), '<=', `${prefix}-31`)
-      .get();
+    const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
+
+    /* Busca todos os docs do mês — filtra por prefixo no cliente */
+    const snap = await db.collection('dateConfig').get();
 
     snap.forEach(docSnap => {
-      const data = docSnap.data();
-      const isBlocked = data.blocked || (Array.isArray(data.times) && data.times.length === 0);
+      if (!docSnap.id.startsWith(prefix)) return;
+
+      const data      = docSnap.data();
+      const isBlocked = data.blocked ||
+        (Array.isArray(data.times) && data.times.length === 0);
       if (!isBlocked) return;
 
       const btn = calDays.querySelector(`[data-date-str="${docSnap.id}"]`);
       if (btn && !btn.disabled) {
         btn.classList.add('cal-day--disabled');
         btn.disabled = true;
-        btn.setAttribute('aria-label', btn.getAttribute('aria-label') + ' (indisponível)');
       }
     });
-  } catch (_) { /* ignora erros de rede */ }
+  } catch (e) {
+    console.warn('[KV] applyBlockedDates falhou:', e.message);
+  }
 }
 
 async function selectDate(date, btn) {
@@ -281,7 +286,9 @@ async function fetchTimesForDate(date) {
       if (data.blocked) return [];
       if (Array.isArray(data.times) && data.times.length > 0) return data.times;
     }
-  } catch (_) { /* fallback */ }
+  } catch (e) {
+    console.warn('[KV] fetchTimesForDate falhou:', e.message);
+  }
   return scheduleConfig.defaultTimes;
 }
 

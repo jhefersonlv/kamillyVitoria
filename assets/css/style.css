@@ -1541,6 +1541,30 @@ em {
   box-shadow: 0 3px 10px rgba(196, 124, 128, 0.4);
 }
 
+/* Estados de loading e vazio nos horários */
+.slots-loading,
+.slots-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--color-mid);
+  padding: 14px 0;
+}
+.slots-loading::before {
+  content: '';
+  display: inline-block;
+  width: 14px; height: 14px;
+  border: 2px solid var(--color-center);
+  border-top-color: var(--color-accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Booking summary */
 .booking-summary {
   background: rgba(255, 255, 255, 0.7);
