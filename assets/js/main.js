@@ -6,60 +6,82 @@
 
 /* ─── CONFIG ──────────────────────────────────────────────────── */
 // 🔧 SUBSTITUA pelo número real com DDI (ex: 5511999999999)
-const WHATSAPP_NUMBER = '5500000000000';
+const WHATSAPP_NUMBER = '5511975199771';
 
 /* ─── SERVIÇOS ────────────────────────────────────────────────── */
 const SERVICES_LIST = [
-  { id: 'pe',         name: 'Pé',               price: 35   },
-  { id: 'mao',        name: 'Mão',              price: 25   },
-  { id: 'blindagem',  name: 'Blindagem',         price: null },
-  { id: 'gel',        name: 'Esmaltação em Gel', price: null },
-  { id: 'molde-f1',   name: 'Molde F1',          price: 55   },
-  { id: 'tips',       name: 'Tips',              price: 60   },
-  { id: 'fibra',      name: 'Fibra',             price: 90   },
+  { id: 'pe', name: 'Pé', price: 35 },
+  { id: 'mao', name: 'Mão', price: 25 },
+  { id: 'blindagem', name: 'Blindagem', price: null },
+  { id: 'gel', name: 'Esmaltação em Gel', price: null },
+  { id: 'molde-f1', name: 'Molde F1', price: 55 },
+  { id: 'tips', name: 'Tips', price: 60 },
+  { id: 'fibra', name: 'Fibra', price: 90 },
 ];
+/* Fallback estático — substituído pelos dados do Firebase quando disponível */
 const AVAILABLE_TIMES = [
   '08:00', '09:00', '10:00', '11:00',
   '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
 ];
+
+/* ─── SCHEDULE CONFIG (carregado do Firebase) ────────────────── */
+let scheduleConfig = {
+  defaultTimes: [...AVAILABLE_TIMES],
+  workDays: [1, 2, 3, 4, 5, 6]   // 0=Dom … 6=Sáb
+};
+
+async function loadScheduleConfig() {
+  try {
+    const snap = await db.collection('config').doc('schedule').get();
+    if (snap.exists) scheduleConfig = { ...scheduleConfig, ...snap.data() };
+  } catch (_) { /* usa fallback */ }
+}
+
+/* Formata Date → 'YYYY-MM-DD' */
+function fmtDate(date) {
+  return `${date.getFullYear()}-` +
+    `${String(date.getMonth() + 1).padStart(2, '0')}-` +
+    `${String(date.getDate()).padStart(2, '0')}`;
+}
 const PT_MONTHS = [
-  'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'
+  'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
+  'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
 ];
 const PT_DAYS_FULL = [
-  'Domingo','Segunda-feira','Terça-feira','Quarta-feira',
-  'Quinta-feira','Sexta-feira','Sábado'
+  'Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira',
+  'Quinta-feira', 'Sexta-feira', 'Sábado'
 ];
 
 /* ─── STATE ───────────────────────────────────────────────────── */
-let currentStep    = 1;
-let selectedService = null;
-let selectedDate   = null;
-let selectedTime   = null;
-let calendarDate   = new Date();
+let currentStep      = 1;
+let selectedService  = null;   // fluxo legado (botão "Agendar" do nav)
+let selectedServices = [];     // array { name, price } — fluxo dos cards
+let selectedDate     = null;
+let selectedTime     = null;
+let calendarDate     = new Date();
 
 let pendingService = null;
 let pendingPrice   = null;
 
 /* ─── DOM REFS ────────────────────────────────────────────────── */
-const backdrop    = document.getElementById('modal-backdrop');
-const modal       = document.getElementById('booking-modal');
-const step1Next   = document.getElementById('step1-next');
-const step2Next   = document.getElementById('step2-next');
-const calDays     = document.getElementById('cal-days');
-const calLabel    = document.getElementById('cal-month-label');
+const backdrop = document.getElementById('modal-backdrop');
+const modal = document.getElementById('booking-modal');
+const step1Next = document.getElementById('step1-next');
+const step2Next = document.getElementById('step2-next');
+const calDays = document.getElementById('cal-days');
+const calLabel = document.getElementById('cal-month-label');
 const timeSlotsWrap = document.getElementById('time-slots-section');
-const timeSlotsEl   = document.getElementById('time-slots');
-const hamburgerBtn  = document.getElementById('hamburger-btn');
-const navLinks      = document.getElementById('nav-links');
+const timeSlotsEl = document.getElementById('time-slots');
+const hamburgerBtn = document.getElementById('hamburger-btn');
+const navLinks = document.getElementById('nav-links');
 
 /* ─── MODAL ───────────────────────────────────────────────────── */
 function openModal(preselect) {
   // Reset state
-  currentStep     = 1;
-  selectedDate    = null;
-  selectedTime    = null;
-  calendarDate    = new Date();
+  currentStep = 1;
+  selectedDate = null;
+  selectedTime = null;
+  calendarDate = new Date();
 
   if (preselect) {
     selectedService = preselect;
@@ -114,10 +136,10 @@ function showStep(n) {
 
 function updateStepDots() {
   [1, 2, 3].forEach(i => {
-    const dot  = document.getElementById(`step-dot-${i}`);
+    const dot = document.getElementById(`step-dot-${i}`);
     const line = document.getElementById(`step-line-${i}`);
     dot.classList.remove('active', 'done');
-    if (i < currentStep)       dot.classList.add('done');
+    if (i < currentStep) dot.classList.add('done');
     else if (i === currentStep) dot.classList.add('active');
     if (line) {
       line.classList.toggle('done', i < currentStep);
@@ -137,7 +159,7 @@ function goToStep(n) {
 /* ─── SERVICE SELECTION ──────────────────────────────────────── */
 document.querySelectorAll('input[name="service"]').forEach(radio => {
   radio.addEventListener('change', () => {
-    selectedService  = radio.value;
+    selectedService = radio.value;
     step1Next.disabled = false;
 
     // Update visual selection on labels
@@ -151,10 +173,10 @@ document.querySelectorAll('input[name="service"]').forEach(radio => {
 /* ─── CALENDAR ───────────────────────────────────────────────── */
 function changeMonth(dir) {
   calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + dir, 1);
-  selectedDate   = null;
-  selectedTime   = null;
+  selectedDate = null;
+  selectedTime = null;
   timeSlotsWrap.hidden = true;
-  step2Next.disabled   = true;
+  step2Next.disabled = true;
   renderCalendar();
 }
 
@@ -163,71 +185,117 @@ function renderCalendar() {
   const month = calendarDate.getMonth();
   calLabel.textContent = `${PT_MONTHS[month]} ${year}`;
 
-  const today    = new Date();
-  today.setHours(0,0,0,0);
-  const firstDay = new Date(year, month, 1).getDay(); // 0=Sun
+  const today       = new Date();
+  today.setHours(0, 0, 0, 0);
+  const firstDay    = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   calDays.innerHTML = '';
 
-  // Empty cells before first day
   for (let i = 0; i < firstDay; i++) {
     const empty = document.createElement('button');
     empty.className = 'cal-day cal-day--empty';
-    empty.tabIndex = -1;
+    empty.tabIndex  = -1;
     empty.setAttribute('aria-hidden', 'true');
     calDays.appendChild(empty);
   }
 
-  // Days
   for (let d = 1; d <= daysInMonth; d++) {
-    const date    = new Date(year, month, d);
-    const isPast  = date < today;
-    const isSun   = date.getDay() === 0;
-    const isToday = date.toDateString() === today.toDateString();
+    const date      = new Date(year, month, d);
+    const isPast    = date < today;
+    const isOffDay  = !scheduleConfig.workDays.includes(date.getDay());
+    const isToday   = date.toDateString() === today.toDateString();
     const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
-    const isDisabled  = isPast || isSun;
+    const isDisabled = isPast || isOffDay;
 
     const btn = document.createElement('button');
-    btn.className  = 'cal-day';
+    btn.className = 'cal-day';
     btn.textContent = d;
+    btn.dataset.dateStr = fmtDate(date);
     btn.setAttribute('role', 'gridcell');
-    btn.setAttribute('aria-label', `${d} de ${PT_MONTHS[month]} de ${year}${isDisabled ? ' (indisponível)' : ''}`);
+    btn.setAttribute('aria-label',
+      `${d} de ${PT_MONTHS[month]} de ${year}${isDisabled ? ' (indisponível)' : ''}`);
 
-    if (isDisabled)  btn.classList.add('cal-day--disabled');
-    if (isToday)     btn.classList.add('cal-day--today');
-    if (isSelected)  btn.classList.add('selected');
-    if (isDisabled) {
-      btn.disabled = true;
-    } else {
+    if (isDisabled) { btn.classList.add('cal-day--disabled'); btn.disabled = true; }
+    if (isToday)    btn.classList.add('cal-day--today');
+    if (isSelected) btn.classList.add('selected');
+
+    if (!isDisabled) {
       btn.addEventListener('click', () => selectDate(date, btn));
     }
     calDays.appendChild(btn);
   }
+
+  /* Overlay assíncrono: marca dias bloqueados no Firebase */
+  applyBlockedDates(year, month);
 }
 
-function selectDate(date, btn) {
+async function applyBlockedDates(year, month) {
+  try {
+    const prefix  = `${year}-${String(month + 1).padStart(2, '0')}`;
+    const snap    = await db.collection('dateConfig')
+      .where(firebase.firestore.FieldPath.documentId(), '>=', `${prefix}-01`)
+      .where(firebase.firestore.FieldPath.documentId(), '<=', `${prefix}-31`)
+      .get();
+
+    snap.forEach(docSnap => {
+      const data = docSnap.data();
+      const isBlocked = data.blocked || (Array.isArray(data.times) && data.times.length === 0);
+      if (!isBlocked) return;
+
+      const btn = calDays.querySelector(`[data-date-str="${docSnap.id}"]`);
+      if (btn && !btn.disabled) {
+        btn.classList.add('cal-day--disabled');
+        btn.disabled = true;
+        btn.setAttribute('aria-label', btn.getAttribute('aria-label') + ' (indisponível)');
+      }
+    });
+  } catch (_) { /* ignora erros de rede */ }
+}
+
+async function selectDate(date, btn) {
   selectedDate = date;
   selectedTime = null;
   step2Next.disabled = true;
 
-  // Highlight selected day
   document.querySelectorAll('.cal-day').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 
-  renderTimeSlots();
+  /* Mostra loading enquanto busca horários */
   timeSlotsWrap.hidden = false;
+  timeSlotsEl.innerHTML = '<p class="slots-loading">Carregando horários…</p>';
 
-  // Scroll on mobile only
+  const times = await fetchTimesForDate(date);
+  renderTimeSlots(times);
+
   if (window.innerWidth < 640) {
     timeSlotsWrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 }
 
+async function fetchTimesForDate(date) {
+  try {
+    const snap = await db.collection('dateConfig').doc(fmtDate(date)).get();
+    if (snap.exists) {
+      const data = snap.data();
+      if (data.blocked) return [];
+      if (Array.isArray(data.times) && data.times.length > 0) return data.times;
+    }
+  } catch (_) { /* fallback */ }
+  return scheduleConfig.defaultTimes;
+}
+
 /* ─── TIME SLOTS ─────────────────────────────────────────────── */
-function renderTimeSlots() {
+function renderTimeSlots(times) {
   timeSlotsEl.innerHTML = '';
-  AVAILABLE_TIMES.forEach(t => {
+
+  if (!times || times.length === 0) {
+    timeSlotsEl.innerHTML =
+      '<p class="slots-empty">Nenhum horário disponível para esta data.</p>';
+    return;
+  }
+
+  times.forEach(t => {
     const btn = document.createElement('button');
     btn.className = 'time-slot';
     btn.textContent = t;
@@ -246,12 +314,46 @@ function selectTime(time, btn) {
 
 /* ─── SUMMARY ────────────────────────────────────────────────── */
 function fillSummary() {
-  document.getElementById('summary-service').textContent = selectedService || '—';
+  const listEl  = document.getElementById('summary-services-list');
+  const totalLine = document.getElementById('summary-total-line');
+  const totalEl   = document.getElementById('summary-total');
+
+  // Serviços vindos dos cards
+  if (selectedServices.length > 0) {
+    let total = 0;
+    let hasConsulta = false;
+
+    listEl.innerHTML = selectedServices.map(s => {
+      const priceLabel = s.price !== null
+        ? `R$ ${s.price.toFixed(2).replace('.', ',')}`
+        : 'A consultar';
+      if (s.price !== null) total += s.price; else hasConsulta = true;
+      return `<span class="summary-service-row">
+                <span>${s.name}</span>
+                <strong>${priceLabel}</strong>
+              </span>`;
+    }).join('');
+
+    if (selectedServices.length > 1) {
+      const totalStr = (hasConsulta
+        ? `R$ ${total.toFixed(2).replace('.', ',')} + A consultar`
+        : `R$ ${total.toFixed(2).replace('.', ',')}`);
+      totalEl.textContent = totalStr;
+      totalLine.hidden = false;
+    } else {
+      totalLine.hidden = true;
+    }
+
+  // Fluxo legado (nav "Agendar")
+  } else {
+    listEl.innerHTML = `<span class="summary-service-row"><span>${selectedService || '—'}</span></span>`;
+    totalLine.hidden = true;
+  }
 
   if (selectedDate) {
-    const options = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
+    const opts = { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' };
     document.getElementById('summary-date').textContent =
-      selectedDate.toLocaleDateString('pt-BR', options);
+      selectedDate.toLocaleDateString('pt-BR', opts);
   }
 
   document.getElementById('summary-time').textContent = selectedTime || '—';
@@ -259,30 +361,46 @@ function fillSummary() {
 
 /* ─── WHATSAPP FINALIZE ──────────────────────────────────────── */
 function finalizeOnWhatsApp() {
-  if (!selectedService || !selectedDate || !selectedTime) {
+  const hasServices = selectedServices.length > 0 || selectedService;
+  if (!hasServices || !selectedDate || !selectedTime) {
     alert('Por favor, preencha todos os campos antes de continuar.');
     return;
   }
 
   const dateStr = selectedDate.toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric'
+    weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
   });
+
+  let serviceBlock;
+  if (selectedServices.length > 0) {
+    let total = 0;
+    let hasConsulta = false;
+    const lines = selectedServices.map(s => {
+      if (s.price !== null) { total += s.price; return `• ${s.name}: R$ ${s.price.toFixed(2).replace('.', ',')}`; }
+      hasConsulta = true;
+      return `• ${s.name}: A consultar`;
+    });
+    const totalStr = hasConsulta
+      ? `R$ ${total.toFixed(2).replace('.', ',')} + valores a consultar`
+      : `R$ ${total.toFixed(2).replace('.', ',')}`;
+    serviceBlock = lines.join('\n') +
+      (selectedServices.length > 1 ? `\n*Total:* ${totalStr}` : '');
+  } else {
+    serviceBlock = `• ${selectedService}`;
+  }
 
   const message =
     `Olá Kamilly! 💅\n` +
-    `Gostaria de agendar o seguinte serviço:\n\n` +
-    `*Serviço:* ${selectedService}\n` +
+    `Gostaria de agendar:\n\n` +
+    serviceBlock + '\n\n' +
     `*Data:* ${dateStr}\n` +
     `*Horário:* ${selectedTime}\n\n` +
     `Aguardo a confirmação. Obrigada! 🌸`;
 
-  const encoded = encodeURIComponent(message);
-  const url     = `https://wa.me/${WHATSAPP_NUMBER}?text=${encoded}`;
-
-  window.open(url, '_blank', 'noopener,noreferrer');
+  window.open(
+    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
+    '_blank', 'noopener,noreferrer'
+  );
   closeModal();
 }
 
@@ -370,16 +488,57 @@ function formatPrice(price) {
   return 'R$ ' + price.toFixed(2).replace('.', ',');
 }
 
+/* ─── Abrir seleção de serviços sem pré-seleção (nav/hero/portfólio) */
+function openServiceSelect() {
+  pendingService = null;
+  pendingPrice   = null;
+  openMultiSelectModal();
+}
+
+/* ─── Abrir booking modal já com serviços selecionados ──────── */
+function openBookingModal(services) {
+  selectedServices = services;
+  selectedDate     = null;
+  selectedTime     = null;
+  calendarDate     = new Date();
+
+  timeSlotsWrap.hidden = true;
+  step2Next.disabled   = true;
+
+  loadScheduleConfig().then(() => renderCalendar());
+
+  // Vai direto para o step 2 (data/hora), marcando step 1 como concluído
+  showStep(2);
+
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(() => modal.querySelector('.modal-close').focus(), 350);
+}
+
+/* ─── Voltar do step 2: fecha o modal (veio dos cards) ──────── */
+function goBackFromStep2() {
+  if (selectedServices.length > 0) {
+    // Veio dos cards — fecha o booking e limpa
+    selectedServices = [];
+    closeModal();
+  } else {
+    // Veio do fluxo legado
+    goToStep(1);
+  }
+}
+
 /* ─── 1. Clique no card do serviço ─────────────────────────── */
 function selectService(name, price) {
   pendingService = name;
-  pendingPrice   = price;
+  pendingPrice = price;
 
   const preview = document.getElementById('discount-service-preview');
   preview.innerHTML =
     `<div class="preview-service">` +
-      `<span class="preview-name">${name}</span>` +
-      `<span class="preview-price">${formatPrice(price)}</span>` +
+    `<span class="preview-name">${name}</span>` +
+    `<span class="preview-price">${formatPrice(price)}</span>` +
     `</div>`;
 
   openDiscountModal();
@@ -405,21 +564,10 @@ document.getElementById('discount-backdrop').addEventListener('click', e => {
   if (e.target === document.getElementById('discount-backdrop')) closeDiscountModal();
 });
 
-/* ─── 2a. Usuário clica "Não" → WhatsApp direto ─────────────── */
+/* ─── 2a. Usuário clica "Não" → booking modal com serviço único ─ */
 function discountNo() {
   closeDiscountModal();
-
-  const message =
-    `Olá Kamilly! 💅\n` +
-    `Gostaria de agendar o seguinte serviço:\n\n` +
-    `*Serviço:* ${pendingService}\n` +
-    `*Valor:* ${formatPrice(pendingPrice)}\n\n` +
-    `Aguardo a confirmação. Obrigada! 🌸`;
-
-  window.open(
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
-    '_blank', 'noopener,noreferrer'
-  );
+  openBookingModal([{ name: pendingService, price: pendingPrice }]);
 }
 
 /* ─── 2b. Usuário clica "Sim" → Modal de seleção múltipla ───── */
@@ -440,9 +588,9 @@ function openMultiSelectModal() {
     label.className = 'multiselect-option' + (isPreselected ? ' multiselect-option--checked' : '');
 
     const cb = document.createElement('input');
-    cb.type    = 'checkbox';
-    cb.name    = 'multi-service';
-    cb.value   = service.name;
+    cb.type = 'checkbox';
+    cb.name = 'multi-service';
+    cb.value = service.name;
     cb.dataset.price = service.price !== null ? service.price : '';
     cb.checked = isPreselected;
 
@@ -486,7 +634,7 @@ document.getElementById('multiselect-backdrop').addEventListener('click', e => {
 function updateMultiTotal() {
   const checked = document.querySelectorAll('#multiselect-services input[type="checkbox"]:checked');
 
-  let total       = 0;
+  let total = 0;
   let hasConsulta = false;
 
   checked.forEach(cb => {
@@ -497,49 +645,26 @@ function updateMultiTotal() {
     }
   });
 
-  const totalEl   = document.getElementById('multiselect-total');
+  const totalEl = document.getElementById('multiselect-total');
   const totalBase = 'R$ ' + total.toFixed(2).replace('.', ',');
   totalEl.textContent = hasConsulta ? totalBase + ' + A consultar' : totalBase;
 
   document.getElementById('multiselect-confirm-btn').disabled = checked.length === 0;
 }
 
-/* ─── Finalizar seleção múltipla → WhatsApp ─────────────────── */
+/* ─── Finalizar seleção múltipla → booking modal ────────────── */
 function finalizeMultiSelect() {
   const checked = document.querySelectorAll('#multiselect-services input[type="checkbox"]:checked');
   if (checked.length === 0) return;
 
-  let lines       = [];
-  let total       = 0;
-  let hasConsulta = false;
-
+  const services = [];
   checked.forEach(cb => {
-    const name = cb.value;
-    if (cb.dataset.price !== '') {
-      const p = parseFloat(cb.dataset.price);
-      total  += p;
-      lines.push(`• ${name}: R$ ${p.toFixed(2).replace('.', ',')}`);
-    } else {
-      hasConsulta = true;
-      lines.push(`• ${name}: A consultar`);
-    }
+    services.push({
+      name:  cb.value,
+      price: cb.dataset.price !== '' ? parseFloat(cb.dataset.price) : null
+    });
   });
 
-  const totalStr = hasConsulta
-    ? `R$ ${total.toFixed(2).replace('.', ',')} + valores a consultar`
-    : `R$ ${total.toFixed(2).replace('.', ',')}`;
-
-  const message =
-    `Olá Kamilly! 💅\n` +
-    `Gostaria de agendar os seguintes serviços:\n\n` +
-    lines.join('\n') + '\n\n' +
-    `*Total:* ${totalStr}\n\n` +
-    `Aguardo a confirmação. Obrigada! 🌸`;
-
-  window.open(
-    `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,
-    '_blank', 'noopener,noreferrer'
-  );
-
   closeMultiSelectModal();
+  openBookingModal(services);
 }

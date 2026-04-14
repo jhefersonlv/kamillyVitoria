@@ -29,12 +29,12 @@
   --shadow-lg: 0 20px 60px rgba(44, 31, 32, 0.22);
   --shadow-glow: 0 0 40px rgba(215, 158, 161, 0.45);
 
-  --font-head:     'Playfair Display', Georgia, serif;
+  --font-head: 'Playfair Display', Georgia, serif;
   --font-head-alt: 'Playfair Display', Georgia, serif;
-  --font-body:     'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-deco:     'Great Vibes', cursive;
-  --font-mono:     'Courier New', Courier, monospace;
-  --font-tag:      'Lexend', sans-serif;
+  --font-body: 'Lexend', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-deco: 'Great Vibes', cursive;
+  --font-mono: 'Courier New', Courier, monospace;
+  --font-tag: 'Lexend', sans-serif;
 
   --radius-sm: 10px;
   --radius-md: 18px;
@@ -247,8 +247,8 @@ em {
   /* Lexend ExtraLight */
   letter-spacing: 0.20em;
   text-transform: uppercase;
-  color: var(--color-accent);
-  background: rgba(196, 124, 128, 0.12);
+  color: var(--color-dark-2);
+  background: rgba(145, 83, 86, 0.212);
   padding: 6px 18px;
   border-radius: 100px;
   margin-bottom: 16px;
@@ -2022,6 +2022,65 @@ em {
 .total-value {
   font-family: var(--font-head);
   font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--color-accent-dk);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESUMO DO BOOKING MODAL — MÚLTIPLOS SERVIÇOS
+   ═══════════════════════════════════════════════════════════════ */
+.summary-item--services {
+  align-items: flex-start;
+}
+
+.summary-services-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.summary-services-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summary-service-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.93rem;
+  color: var(--color-dark);
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(196,124,128,0.1);
+}
+.summary-service-row:last-child {
+  border-bottom: none;
+}
+.summary-service-row strong {
+  color: var(--color-accent-dk);
+  font-weight: 600;
+}
+
+.summary-total-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1.5px solid rgba(196,124,128,0.25);
+}
+
+.summary-total-label {
+  font-size: 0.82rem;
+  color: var(--color-mid);
+  font-weight: 500;
+}
+
+.summary-total-value {
+  font-family: var(--font-head);
+  font-size: 1.2rem;
   font-weight: 700;
   color: var(--color-accent-dk);
 }

@@ -39,7 +39,7 @@
         <li><a href="#services" class="nav-link">Serviços</a></li>
         <li><a href="#contact" class="nav-link">Contato</a></li>
         <li>
-          <button class="btn-primary btn-sm" id="nav-cta-btn" onclick="openModal()">
+          <button class="btn-primary btn-sm" id="nav-cta-btn" onclick="openServiceSelect()">
             Agendar
           </button>
         </li>
@@ -62,11 +62,7 @@
     <div class="hero-content">
       <!-- Logo branco principal -->
       <div class="hero-logo" aria-label="Kamilly Vitória Beauty Art">
-        <img
-          src="assets/img/logo.png"
-          alt="Kamilly Vitória Beauty Art"
-          class="hero-logo-img"
-        />
+        <img src="assets/img/logo.png" alt="Kamilly Vitória Beauty Art" class="hero-logo-img" />
       </div>
 
       <div class="hero-divider" aria-hidden="true"></div>
@@ -81,7 +77,7 @@
       </p>
 
       <div class="hero-actions">
-        <button class="btn-primary btn-hero" id="hero-cta-btn" onclick="openModal()">
+        <button class="btn-primary btn-hero" id="hero-cta-btn" onclick="openServiceSelect()">
           <i class="ph ph-calendar-check" aria-hidden="true"></i>
           Agendar Agora
         </button>
@@ -116,42 +112,47 @@
 
       <div class="bento-grid" id="portfolio-grid" role="list">
         <div class="bento-item bento-featured" role="listitem">
-          <img src="assets/img/g1.png" alt="Nail art floral em rosa com folha dourada" loading="lazy" />
+          <img src="assets/img/g1.jpeg" alt="Nail art floral em rosa com folha dourada" loading="lazy" />
           <div class="bento-hover">
-            <span class="bento-label">Floral Luxo</span>
-            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+            <span class="bento-label">Marron</span>
+            <button class="bento-cta" onclick="openServiceSelect()" aria-label="Agendar serviço similar">Agendar
+              →</button>
           </div>
         </div>
 
         <div class="bento-item bento-tall" role="listitem">
-          <img src="assets/img/g2.png" alt="Unhas bordo velvet com pedras luxuosas" loading="lazy" />
+          <img src="assets/img/g2.jpg" alt="Unhas bordo velvet com pedras luxuosas" loading="lazy" />
           <div class="bento-hover">
-            <span class="bento-label">Velvet Borgonha</span>
-            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+            <span class="bento-label">Azul Metalico</span>
+            <button class="bento-cta" onclick="openServiceSelect()" aria-label="Agendar serviço similar">Agendar
+              →</button>
           </div>
         </div>
 
         <div class="bento-item" role="listitem">
-          <img src="assets/img/g3.png" alt="Unhas chrome espelhado prata" loading="lazy" />
+          <img src="assets/img/g3.jpeg" alt="Unhas chrome espelhado prata" loading="lazy" />
           <div class="bento-hover">
-            <span class="bento-label">Chrome Prata</span>
-            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+            <span class="bento-label">Praiana</span>
+            <button class="bento-cta" onclick="openServiceSelect()" aria-label="Agendar serviço similar">Agendar
+              →</button>
           </div>
         </div>
 
         <div class="bento-item bento-wide" role="listitem">
-          <img src="assets/img/g4.png" alt="Unhas holográficas com glitter e pedras" loading="lazy" />
+          <img src="assets/img/g4.jpeg" alt="Unhas holográficas com glitter e pedras" loading="lazy" />
           <div class="bento-hover">
-            <span class="bento-label">Holográfico & Cristais</span>
-            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+            <span class="bento-label">Rosa</span>
+            <button class="bento-cta" onclick="openServiceSelect()" aria-label="Agendar serviço similar">Agendar
+              →</button>
           </div>
         </div>
 
         <div class="bento-item" role="listitem">
-          <img src="assets/img/g5.png" alt="Manicure minimalista nude com art deco dourado" loading="lazy" />
+          <img src="assets/img/g5.jpeg" alt=" Manicure minimalista nude com art deco dourado" loading="lazy" />
           <div class="bento-hover">
-            <span class="bento-label">Art Déco Nude</span>
-            <button class="bento-cta" onclick="openModal()" aria-label="Agendar serviço similar">Agendar →</button>
+            <span class="bento-label">Azul Royal</span>
+            <button class="bento-cta" onclick="openServiceSelect()" aria-label="Agendar serviço similar">Agendar
+              →</button>
           </div>
         </div>
       </div>
@@ -172,7 +173,7 @@
         <!-- CARD: Pé — trocar src pela foto do serviço de pé -->
         <article class="service-card" role="listitem">
           <div class="service-card-img">
-            <img src="assets/img/g1.png" alt="Serviço de pé – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/service-pe.jpg" alt="Serviço de pé – Kamilly Vitória Beauty Art" loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-foot-prints"></i></span>
           </div>
@@ -188,7 +189,7 @@
         <!-- CARD: Mão — trocar src pela foto do serviço de mão -->
         <article class="service-card" role="listitem">
           <div class="service-card-img">
-            <img src="assets/img/g2.png" alt="Serviço de mão – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/service-mao.jpeg" alt="Serviço de mão – Kamilly Vitória Beauty Art" loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-hand"></i></span>
           </div>
@@ -204,7 +205,8 @@
         <!-- CARD: Blindagem — trocar src pela foto do serviço de blindagem -->
         <article class="service-card" role="listitem">
           <div class="service-card-img">
-            <img src="assets/img/g3.png" alt="Blindagem de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/service-blindagem.jpeg" alt="Blindagem de unhas – Kamilly Vitória Beauty Art"
+              loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-shield-check"></i></span>
           </div>
@@ -221,7 +223,8 @@
         <article class="service-card service-card--highlight" role="listitem">
           <div class="service-badge">Mais popular</div>
           <div class="service-card-img">
-            <img src="assets/img/g4.png" alt="Esmaltação em gel – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/esmaltacao-gel.jpeg" alt="Esmaltação em gel – Kamilly Vitória Beauty Art"
+              loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-sparkle"></i></span>
           </div>
@@ -229,7 +232,8 @@
             <h3 class="service-title">Esmaltação em Gel</h3>
             <p class="service-price service-price--consult">A consultar</p>
           </div>
-          <button class="service-btn" onclick="selectService('Esmaltação em Gel', null)" aria-label="Agendar Esmaltação em Gel">
+          <button class="service-btn" onclick="selectService('Esmaltação em Gel', null)"
+            aria-label="Agendar Esmaltação em Gel">
             Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
           </button>
         </article>
@@ -237,7 +241,7 @@
         <!-- CARD: Molde F1 — trocar src pela foto do serviço -->
         <article class="service-card" role="listitem">
           <div class="service-card-img">
-            <img src="assets/img/g5.png" alt="Molde F1 – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/molde-f1.jpeg" alt="Molde F1 – Kamilly Vitória Beauty Art" loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-star"></i></span>
           </div>
@@ -253,7 +257,7 @@
         <!-- CARD: Tips — trocar src pela foto do serviço de tips -->
         <article class="service-card" role="listitem">
           <div class="service-card-img">
-            <img src="assets/img/g3.png" alt="Tips de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/service-tips.jpeg" alt="Tips de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-crown-simple"></i></span>
           </div>
@@ -269,7 +273,7 @@
         <!-- CARD: Fibra — trocar src pela foto do serviço de fibra -->
         <article class="service-card" role="listitem">
           <div class="service-card-img">
-            <img src="assets/img/g2.png" alt="Fibra de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
+            <img src="assets/img/service-fibra.jpeg" alt="Fibra de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
             <div class="service-card-img-overlay" aria-hidden="true"></div>
             <span class="service-icon-badge"><i class="ph ph-flower"></i></span>
           </div>
@@ -415,11 +419,11 @@
             </div>
           </label>
 
-          <label class="service-option" id="opt-beauty">
-            <input type="radio" name="service" value="Beauty Art" />
+          <label class="service-option service-option--disabled" id="opt-beauty">
+            <input type="radio" name="service" value="Beauty Art" disabled />
             <div class="service-option-inner">
               <i class="ph ph-flower" aria-hidden="true"></i>
-              <span class="opt-name">Beauty Art</span>
+              <span class="opt-name">Beauty Art <span class="badge-soon">Em breve</span></span>
               <span class="opt-desc">Sobrancelha, depilação, make</span>
             </div>
           </label>
@@ -441,7 +445,7 @@
 
       <!-- ── Step 2: Date & Time ── -->
       <div class="modal-step hidden" id="modal-step-2" role="region" aria-labelledby="step2-title">
-        <button class="back-btn" onclick="goToStep(1)" aria-label="Voltar ao passo 1">
+        <button class="back-btn" id="step2-back-btn" onclick="goBackFromStep2()" aria-label="Voltar">
           <i class="ph ph-arrow-left" aria-hidden="true"></i> Voltar
         </button>
         <h2 class="modal-title" id="step2-title">Data &amp; Horário</h2>
@@ -485,11 +489,15 @@
         <p class="modal-subtitle">Revise os detalhes antes de finalizar</p>
 
         <div class="booking-summary" id="booking-summary" role="region" aria-label="Resumo do agendamento">
-          <div class="summary-item">
+          <div class="summary-item summary-item--services">
             <i class="ph ph-sparkle" aria-hidden="true"></i>
-            <div>
-              <span class="summary-label">Serviço</span>
-              <strong class="summary-value" id="summary-service">—</strong>
+            <div class="summary-services-wrap">
+              <span class="summary-label">Serviços</span>
+              <div id="summary-services-list" class="summary-services-list">—</div>
+              <div id="summary-total-line" class="summary-total-line" hidden>
+                <span class="summary-total-label">Total estimado</span>
+                <strong id="summary-total" class="summary-total-value">—</strong>
+              </div>
             </div>
           </div>
           <div class="summary-item">
@@ -571,9 +579,8 @@
         <span class="total-value" id="multiselect-total">R$ 0,00</span>
       </div>
 
-      <button class="btn-whatsapp btn-full" id="multiselect-confirm-btn" onclick="finalizeMultiSelect()" disabled>
-        <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
-        Agendar no WhatsApp
+      <button class="btn-primary btn-full" id="multiselect-confirm-btn" onclick="finalizeMultiSelect()" disabled>
+        Continuar para agendamento <i class="ph ph-arrow-right" aria-hidden="true"></i>
       </button>
     </div>
   </div>
@@ -584,6 +591,11 @@
     <i class="ph ph-whatsapp-logo" aria-hidden="true"></i>
   </a>
 
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="assets/js/firebase-config.js"></script>
   <script src="assets/js/main.js"></script>
 </body>
 
