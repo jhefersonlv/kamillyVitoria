@@ -279,17 +279,34 @@ async function selectDate(date, btn) {
 }
 
 async function fetchTimesForDate(date) {
+  const dateStr = fmtDate(date);
+  let times = null;
+
   try {
-    const snap = await db.collection('dateConfig').doc(fmtDate(date)).get();
+    const snap = await db.collection('dateConfig').doc(dateStr).get();
     if (snap.exists) {
       const data = snap.data();
       if (data.blocked) return [];
-      if (Array.isArray(data.times) && data.times.length > 0) return data.times;
+      if (Array.isArray(data.times) && data.times.length > 0) times = data.times;
     }
   } catch (e) {
-    console.warn('[KV] fetchTimesForDate falhou:', e.message);
+    console.warn('[KV] fetchTimesForDate dateConfig falhou:', e.message);
   }
-  return scheduleConfig.defaultTimes;
+
+  if (!times) times = [...scheduleConfig.defaultTimes];
+
+  /* Remove horários já com agendamento registrado pelo admin */
+  try {
+    const bookedSnap = await db.collection('bookedSlots').doc(dateStr).get();
+    if (bookedSnap.exists && Array.isArray(bookedSnap.data().times)) {
+      const booked = bookedSnap.data().times;
+      times = times.filter(t => !booked.includes(t));
+    }
+  } catch (e) {
+    console.warn('[KV] fetchTimesForDate bookedSlots falhou:', e.message);
+  }
+
+  return times;
 }
 
 /* ─── TIME SLOTS ─────────────────────────────────────────────── */
@@ -367,7 +384,7 @@ function fillSummary() {
 }
 
 /* ─── WHATSAPP FINALIZE ──────────────────────────────────────── */
-function finalizeOnWhatsApp() {
+async function finalizeOnWhatsApp() {
   const hasServices = selectedServices.length > 0 || selectedService;
   if (!hasServices || !selectedDate || !selectedTime) {
     alert('Por favor, preencha todos os campos antes de continuar.');
@@ -379,6 +396,10 @@ function finalizeOnWhatsApp() {
   });
 
   let serviceBlock;
+  const services = selectedServices.length > 0
+    ? selectedServices
+    : [{ name: selectedService, price: null }];
+
   if (selectedServices.length > 0) {
     let total = 0;
     let hasConsulta = false;
@@ -403,6 +424,23 @@ function finalizeOnWhatsApp() {
     `*Data:* ${dateStr}\n` +
     `*Horário:* ${selectedTime}\n\n` +
     `Aguardo a confirmação. Obrigada! 🌸`;
+
+  /* Salva agendamento pendente no Firestore — não bloqueia o WhatsApp */
+  try {
+    await db.collection('appointments').add({
+      date:     fmtDate(selectedDate),
+      time:     selectedTime,
+      client:   '',
+      service:  services.map(s => s.name).join(', '),
+      services: services,
+      notes:    '',
+      status:   'pending',
+      source:   'site',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) {
+    console.warn('[KV] Erro ao registrar agendamento pendente:', e.message);
+  }
 
   window.open(
     `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`,

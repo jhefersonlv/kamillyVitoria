@@ -516,6 +516,27 @@
           </div>
         </div>
 
+        <!-- Dados do cliente -->
+        <div class="client-fields">
+          <div class="client-field">
+            <label for="client-name">
+              <i class="ph ph-user" aria-hidden="true"></i> Seu nome
+              <span class="client-required">*</span>
+            </label>
+            <input type="text" id="client-name" class="client-input"
+              placeholder="Como você se chama?" maxlength="60" autocomplete="name" />
+          </div>
+          <div class="client-field">
+            <label for="client-phone">
+              <i class="ph ph-whatsapp-logo" aria-hidden="true"></i> Seu WhatsApp
+              <span class="client-required">*</span>
+            </label>
+            <input type="tel" id="client-phone" class="client-input"
+              placeholder="(11) 99999-9999" maxlength="20" autocomplete="tel" />
+          </div>
+          <p class="client-error" id="client-error" hidden></p>
+        </div>
+
         <div class="confirm-note">
           <i class="ph ph-info" aria-hidden="true"></i>
           <p>Você será redirecionada ao WhatsApp para confirmar o agendamento com a Kamilly.</p>

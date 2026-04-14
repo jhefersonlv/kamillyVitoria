@@ -364,6 +364,16 @@ body {
 .admin-day--blocked::after { background: var(--c-blocked); display: block; }
 .admin-day--custom::after  { background: var(--c-custom);  display: block; }
 
+/* Booked day — ponto no canto superior direito */
+.admin-day--booked::before {
+  content: '';
+  position: absolute;
+  top: 3px; right: 3px;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--c-accent-dk);
+}
+
 /* Loading state */
 .admin-day--loading { opacity: 0.4; pointer-events: none; }
 
@@ -386,6 +396,270 @@ body {
 .legend-blocked   { background: var(--c-blocked); }
 .legend-custom    { background: var(--c-custom); }
 .legend-off       { background: var(--c-off); }
+.legend-booked    { background: var(--c-accent-dk); }
+
+/* ═══════════════════════════════════════════════════════════════
+   SOLICITAÇÕES PENDENTES
+   ═══════════════════════════════════════════════════════════════ */
+:root {
+  --c-pending:    #E67E22;
+  --c-pending-lt: #FEF3E2;
+  --c-pending-bd: #F5CBA7;
+}
+
+.pending-wrap {
+  max-width: 600px;
+  margin: 0 auto 24px;
+  padding: 0 16px;
+}
+
+.pending-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.pending-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  color: #7D4B00;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.pending-badge {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--c-pending);
+  background: var(--c-pending-lt);
+  border: 1px solid var(--c-pending-bd);
+  padding: 4px 12px;
+  border-radius: 999px;
+}
+
+.pending-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pending-item {
+  background: var(--c-pending-lt);
+  border: 1.5px solid var(--c-pending-bd);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.pending-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+
+.pending-item-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pending-item-date {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #7D4B00;
+}
+
+.pending-item-time {
+  background: var(--c-pending);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 2px 9px;
+  border-radius: 999px;
+}
+
+.pending-item-service {
+  font-size: 0.82rem;
+  color: #9E5C00;
+}
+
+.pending-item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.btn-pending-confirm,
+.btn-pending-reject {
+  display: flex; align-items: center; gap: 5px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: opacity var(--trans), transform var(--trans);
+}
+.btn-pending-confirm {
+  background: #27AE60;
+  color: #fff;
+}
+.btn-pending-confirm:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
+.btn-pending-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-pending-reject {
+  background: transparent;
+  border: 1.5px solid var(--c-pending-bd);
+  color: var(--c-pending);
+}
+.btn-pending-reject:hover { background: #fff; }
+
+/* Agendamento pendente dentro do day panel */
+.appt-item--pending {
+  border-color: var(--c-pending-bd);
+  background: var(--c-pending-lt);
+}
+.appt-item--pending .appt-time-badge {
+  background: var(--c-pending);
+}
+.appt-client--pending {
+  color: #9E5C00;
+  font-style: italic;
+  display: flex; align-items: center; gap: 5px;
+  font-size: 0.84rem;
+}
+.appt-item-pending-btns {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.btn-appt-confirm,
+.btn-appt-reject {
+  width: 30px; height: 30px;
+  border-radius: 50%;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background var(--trans);
+  flex-shrink: 0;
+}
+.btn-appt-confirm { background: #E8F5E9; color: #27AE60; }
+.btn-appt-confirm:hover { background: #27AE60; color: #fff; }
+.btn-appt-reject  { background: #FFEBEE; color: var(--c-blocked); }
+.btn-appt-reject:hover { background: var(--c-blocked); color: #fff; }
+
+/* ═══════════════════════════════════════════════════════════════
+   PRÓXIMOS AGENDAMENTOS
+   ═══════════════════════════════════════════════════════════════ */
+.upcoming-wrap {
+  max-width: 600px;
+  margin: 0 auto 32px;
+  padding: 0 16px;
+}
+
+.upcoming-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+
+.upcoming-title {
+  font-family: var(--font-head);
+  font-size: 1.1rem;
+  color: var(--c-dark);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.upcoming-count {
+  font-size: 0.8rem;
+  color: var(--c-accent-dk);
+  background: var(--c-pink-lt);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.upcoming-list {
+  background: var(--c-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.upcoming-empty {
+  padding: 28px;
+  text-align: center;
+  color: var(--c-mid);
+  font-size: 0.88rem;
+}
+
+.upcoming-date-divider {
+  padding: 9px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--c-accent-dk);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: var(--c-pink-lt);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.upcoming-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--c-border);
+}
+.upcoming-item:last-child { border-bottom: none; }
+
+.upcoming-time {
+  background: linear-gradient(135deg, var(--c-pink) 0%, var(--c-accent) 100%);
+  color: var(--c-white);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.upcoming-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.upcoming-client {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--c-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.upcoming-service {
+  font-size: 0.78rem;
+  color: var(--c-accent);
+  font-weight: 500;
+}
+
+.upcoming-notes {
+  font-size: 0.75rem;
+  color: var(--c-mid);
+}
 
 /* ═══════════════════════════════════════════════════════════════
    CONFIGURAÇÕES
@@ -672,6 +946,178 @@ body {
   transition: background var(--trans);
 }
 .btn-delete-config:hover { background: var(--c-blocked-bg); }
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENDAMENTOS — PAINEL DO DIA
+   ═══════════════════════════════════════════════════════════════ */
+.appt-section {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--c-border);
+}
+
+.appt-section-header { margin-bottom: 12px; }
+
+.appt-section-title {
+  font-family: var(--font-head);
+  font-size: 1rem;
+  color: var(--c-dark);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.day-appt-list { margin-bottom: 14px; }
+
+.appt-empty {
+  font-size: 0.84rem;
+  color: var(--c-mid);
+  text-align: center;
+  padding: 14px 0;
+}
+
+.appt-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #fafafa;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+  gap: 10px;
+}
+
+.appt-item-main {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.appt-time-badge {
+  background: linear-gradient(135deg, var(--c-pink) 0%, var(--c-accent) 100%);
+  color: var(--c-white);
+  font-size: 0.78rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.appt-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.appt-client {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--c-dark);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.appt-client--anon { color: var(--c-mid); font-weight: 400; font-style: italic; }
+
+.appt-service {
+  font-size: 0.74rem;
+  color: var(--c-accent);
+  font-weight: 500;
+}
+
+.appt-notes {
+  font-size: 0.74rem;
+  color: var(--c-mid);
+}
+
+.btn-appt-delete {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #ccc;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem;
+  flex-shrink: 0;
+  transition: background var(--trans), color var(--trans);
+}
+.btn-appt-delete:hover { background: var(--c-blocked-bg); color: var(--c-blocked); }
+
+/* Formulário de novo agendamento */
+.appt-form {
+  background: #fafafa;
+  border: 1.5px dashed var(--c-border);
+  border-radius: var(--radius-md);
+  padding: 16px;
+}
+
+.appt-form-title {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--c-mid);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 6px;
+}
+
+.appt-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.appt-field label {
+  display: block;
+  font-size: 0.76rem;
+  font-weight: 500;
+  color: var(--c-mid);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+
+.optional {
+  font-weight: 400;
+  text-transform: none;
+  font-size: 0.72rem;
+  letter-spacing: 0;
+}
+
+.appt-input,
+.appt-select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1.5px solid var(--c-border);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--c-dark);
+  background: var(--c-white);
+  outline: none;
+  transition: border-color var(--trans);
+}
+.appt-input:focus,
+.appt-select:focus { border-color: var(--c-accent); }
+
+.btn-add-appt {
+  width: 100%;
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+  padding: 12px;
+  background: linear-gradient(135deg, var(--c-pink) 0%, var(--c-accent) 100%);
+  color: var(--c-white);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--trans);
+}
+.btn-add-appt:hover:not(:disabled) { opacity: 0.88; }
+.btn-add-appt:disabled { opacity: 0.6; cursor: not-allowed; }
 
 /* Desktop: panel como sidebar */
 @media (min-width: 768px) {

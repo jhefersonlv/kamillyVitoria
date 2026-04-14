@@ -28,6 +28,7 @@ let adminConfig   = {
   workDays: [1,2,3,4,5,6]
 };
 let monthCache    = {};           // { 'YYYY-MM-DD': { blocked, times, reason } }
+let bookedCache   = {};           // { 'YYYY-MM-DD': true } — dias com agendamentos
 let hasExistingConfig = false;    // indica se o dia já tem doc no Firestore
 
 /* ─── AUTENTICAÇÃO ───────────────────────────────────────────── */
@@ -51,6 +52,8 @@ async function showDashboard() {
   renderWorkdaysGrid();
   renderConfigTimesGrid();
   await renderAdminCalendar();
+  loadPendingAppointments();    // não bloqueia — carrega em paralelo
+  loadUpcomingAppointments();   // não bloqueia — carrega em paralelo
 }
 
 async function handleLogin(e) {
@@ -109,6 +112,7 @@ async function loadAdminConfig() {
 function adminChangeMonth(dir) {
   adminCalDate = new Date(adminCalDate.getFullYear(), adminCalDate.getMonth() + dir, 1);
   monthCache   = {};
+  bookedCache  = {};
   renderAdminCalendar();
 }
 
@@ -163,30 +167,51 @@ async function renderAdminCalendar() {
 
 async function loadMonthData(year, month) {
   const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-  try {
-    const snap = await db.collection('dateConfig')
+
+  const [dateSnap, bookedSnap] = await Promise.allSettled([
+    db.collection('dateConfig')
       .where(firebase.firestore.FieldPath.documentId(), '>=', `${prefix}-01`)
       .where(firebase.firestore.FieldPath.documentId(), '<=', `${prefix}-31`)
-      .get();
+      .get(),
+    db.collection('bookedSlots')
+      .where(firebase.firestore.FieldPath.documentId(), '>=', `${prefix}-01`)
+      .where(firebase.firestore.FieldPath.documentId(), '<=', `${prefix}-31`)
+      .get()
+  ]);
 
-    snap.forEach(docSnap => {
-      monthCache[docSnap.id] = docSnap.data();
+  if (dateSnap.status === 'fulfilled') {
+    dateSnap.value.forEach(docSnap => { monthCache[docSnap.id] = docSnap.data(); });
+  } else {
+    console.warn('[KV] loadMonthData dateConfig falhou:', dateSnap.reason?.message);
+  }
+
+  if (bookedSnap.status === 'fulfilled') {
+    bookedSnap.value.forEach(docSnap => {
+      const d = docSnap.data();
+      if (Array.isArray(d.times) && d.times.length > 0) bookedCache[docSnap.id] = true;
     });
-  } catch (_) {}
+  } else {
+    console.warn('[KV] loadMonthData bookedSlots falhou:', bookedSnap.reason?.message);
+  }
 }
 
 function applyMonthDataToCalendar() {
   const daysEl = document.getElementById('admin-cal-days');
   daysEl.querySelectorAll('.admin-day[data-date]').forEach(btn => {
-    const data = monthCache[btn.dataset.date];
-    if (!data) return;
+    const dateStr = btn.dataset.date;
+    const data    = monthCache[dateStr];
 
-    btn.classList.remove('admin-day--blocked', 'admin-day--custom');
-    if (data.blocked || (Array.isArray(data.times) && data.times.length === 0)) {
-      btn.classList.add('admin-day--blocked');
-    } else if (Array.isArray(data.times)) {
-      btn.classList.add('admin-day--custom');
+    btn.classList.remove('admin-day--blocked', 'admin-day--custom', 'admin-day--booked');
+
+    if (data) {
+      if (data.blocked || (Array.isArray(data.times) && data.times.length === 0)) {
+        btn.classList.add('admin-day--blocked');
+      } else if (Array.isArray(data.times)) {
+        btn.classList.add('admin-day--custom');
+      }
     }
+
+    if (bookedCache[dateStr]) btn.classList.add('admin-day--booked');
   });
 }
 
@@ -239,6 +264,7 @@ async function openDayPanel(dateStr, date) {
 
   /* Abre */
   document.getElementById('day-panel').classList.add('open');
+  loadAppointmentsForDay(dateStr);   // não bloqueia a abertura do painel
   document.getElementById('day-panel-backdrop').classList.add('open');
   document.getElementById('day-panel').setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
@@ -452,4 +478,397 @@ function showFeedback(el, msg, success) {
   el.className   = `save-feedback ${success ? 'success' : 'error'}`;
   el.hidden      = false;
   setTimeout(() => { el.hidden = true; }, 4000);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   AGENDAMENTOS — DIA
+   ═══════════════════════════════════════════════════════════════ */
+
+async function loadAppointmentsForDay(dateStr) {
+  const list = document.getElementById('day-appt-list');
+  list.innerHTML = '<p class="appt-empty">Carregando…</p>';
+
+  try {
+    const snap = await db.collection('appointments')
+      .where('date', '==', dateStr)
+      .get();
+
+    const appts = [];
+    snap.forEach(doc => appts.push({ id: doc.id, ...doc.data() }));
+    appts.sort((a, b) => a.time.localeCompare(b.time));
+
+    renderDayAppointments(appts, dateStr);
+  } catch (e) {
+    console.warn('[KV] loadAppointmentsForDay falhou:', e.message);
+    list.innerHTML = '<p class="appt-empty">Erro ao carregar agendamentos.</p>';
+  }
+
+  populateApptTimeSelect(dateStr);
+}
+
+function renderDayAppointments(appts, dateStr) {
+  const list = document.getElementById('day-appt-list');
+
+  if (appts.length === 0) {
+    list.innerHTML = '<p class="appt-empty">Nenhum agendamento neste dia.</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+  appts.forEach(appt => {
+    const isPending = appt.status === 'pending';
+    const item      = document.createElement('div');
+    item.className  = `appt-item${isPending ? ' appt-item--pending' : ''}`;
+
+    const clientLabel = isPending
+      ? `<span class="appt-client appt-client--pending"><i class="ph ph-clock"></i> Aguardando confirmação</span>`
+      : `<span class="appt-client${appt.client ? '' : ' appt-client--anon'}">${appt.client || 'Cliente não informado'}</span>`;
+
+    const serviceText = appt.service || '';
+
+    const actions = isPending
+      ? `<div class="appt-item-pending-btns">
+           <button class="btn-appt-confirm" onclick="confirmAppointment('${appt.id}','${dateStr}','${appt.time}')" title="Confirmar">
+             <i class="ph ph-check"></i>
+           </button>
+           <button class="btn-appt-reject" onclick="rejectAppointment('${appt.id}','${dateStr}','${appt.time}')" title="Recusar">
+             <i class="ph ph-x"></i>
+           </button>
+         </div>`
+      : `<button class="btn-appt-delete" onclick="deleteAppointment('${appt.id}','${dateStr}','${appt.time}')"
+           aria-label="Remover agendamento">
+           <i class="ph ph-trash"></i>
+         </button>`;
+
+    item.innerHTML = `
+      <div class="appt-item-main">
+        <span class="appt-time-badge">${appt.time}</span>
+        <div class="appt-item-info">
+          ${clientLabel}
+          ${serviceText ? `<span class="appt-service">${serviceText}</span>` : ''}
+          ${appt.notes  ? `<span class="appt-notes">${appt.notes}</span>` : ''}
+        </div>
+      </div>
+      ${actions}
+    `;
+    list.appendChild(item);
+  });
+}
+
+async function populateApptTimeSelect(dateStr) {
+  const select = document.getElementById('appt-time');
+  select.innerHTML = '<option value="">— selecione —</option>';
+
+  /* Horários do dia (config personalizada ou padrão) */
+  let times = [...adminConfig.defaultTimes];
+  try {
+    const daySnap = await db.collection('dateConfig').doc(dateStr).get();
+    if (daySnap.exists) {
+      const d = daySnap.data();
+      if (d.blocked) times = [];
+      else if (Array.isArray(d.times)) times = d.times;
+    }
+  } catch (_) {}
+
+  /* Horários já ocupados */
+  let booked = [];
+  try {
+    const bookedSnap = await db.collection('bookedSlots').doc(dateStr).get();
+    if (bookedSnap.exists && Array.isArray(bookedSnap.data().times)) {
+      booked = bookedSnap.data().times;
+    }
+  } catch (_) {}
+
+  /* Monta opções: primeiro os horários do dia, depois ALL_TIMES que faltarem */
+  const combined = [...new Set([...times, ...ALL_TIMES])].sort();
+  combined.forEach(t => {
+    const opt       = document.createElement('option');
+    opt.value       = t;
+    opt.textContent = booked.includes(t) ? `${t} · ocupado` : t;
+    select.appendChild(opt);
+  });
+}
+
+async function addAppointment() {
+  if (!selectedDayStr) return;
+
+  const time    = document.getElementById('appt-time').value;
+  if (!time) { alert('Selecione um horário para o agendamento.'); return; }
+
+  const client  = document.getElementById('appt-client').value.trim();
+  const service = document.getElementById('appt-service').value;
+  const notes   = document.getElementById('appt-notes').value.trim();
+
+  const btn = document.querySelector('.btn-add-appt');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ph ph-spinner"></i> Salvando…';
+
+  try {
+    await db.collection('appointments').add({
+      date:   selectedDayStr,
+      time,
+      client:  client  || '',
+      service: service || '',
+      notes:   notes   || '',
+      status:  'confirmed',
+      source:  'admin',
+      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+
+    /* Marca o horário como ocupado */
+    await db.collection('bookedSlots').doc(selectedDayStr).set(
+      { times: firebase.firestore.FieldValue.arrayUnion(time) },
+      { merge: true }
+    );
+
+    /* Limpa formulário */
+    document.getElementById('appt-time').value    = '';
+    document.getElementById('appt-client').value  = '';
+    document.getElementById('appt-service').value = '';
+    document.getElementById('appt-notes').value   = '';
+
+    /* Atualiza lista do dia, calendário e próximos agendamentos */
+    await loadAppointmentsForDay(selectedDayStr);
+    bookedCache[selectedDayStr] = true;
+    applyMonthDataToCalendar();
+    loadUpcomingAppointments();
+
+  } catch (err) {
+    alert('Erro ao registrar agendamento. Tente novamente.');
+    console.error(err);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ph ph-check"></i> Registrar';
+  }
+}
+
+async function deleteAppointment(id, dateStr, time) {
+  if (!confirm('Remover este agendamento?')) return;
+
+  try {
+    /* Verifica o status antes de deletar */
+    const docSnap = await db.collection('appointments').doc(id).get();
+    const wasConfirmed = docSnap.exists && docSnap.data().status === 'confirmed';
+
+    await db.collection('appointments').doc(id).delete();
+
+    /* Só libera o horário no bookedSlots se estava confirmado */
+    if (wasConfirmed) {
+      const remaining = await db.collection('appointments')
+        .where('date', '==', dateStr)
+        .where('time', '==', time)
+        .where('status', '==', 'confirmed')
+        .get();
+
+      if (remaining.empty) {
+        await db.collection('bookedSlots').doc(dateStr).update({
+          times: firebase.firestore.FieldValue.arrayRemove(time)
+        });
+      }
+    }
+
+    /* Atualiza cache do calendário se não há mais confirmados */
+    const anyConfirmed = await db.collection('appointments')
+      .where('date', '==', dateStr)
+      .where('status', '==', 'confirmed')
+      .limit(1).get();
+    if (anyConfirmed.empty) {
+      delete bookedCache[dateStr];
+      applyMonthDataToCalendar();
+    }
+
+    loadAppointmentsForDay(dateStr);
+    loadUpcomingAppointments();
+
+  } catch (err) {
+    alert('Erro ao remover agendamento.');
+    console.error(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SOLICITAÇÕES PENDENTES
+   ═══════════════════════════════════════════════════════════════ */
+
+async function loadPendingAppointments() {
+  const wrap  = document.getElementById('pending-wrap');
+  const list  = document.getElementById('pending-list');
+  const badge = document.getElementById('pending-badge');
+
+  try {
+    const snap = await db.collection('appointments')
+      .where('status', '==', 'pending')
+      .get();
+
+    const appts = [];
+    snap.forEach(doc => appts.push({ id: doc.id, ...doc.data() }));
+    appts.sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      return a.time.localeCompare(b.time);
+    });
+
+    if (appts.length === 0) {
+      wrap.hidden = true;
+      return;
+    }
+
+    wrap.hidden     = false;
+    badge.textContent = `${appts.length} nova${appts.length !== 1 ? 's' : ''}`;
+    list.innerHTML  = '';
+
+    appts.forEach(appt => {
+      const item = document.createElement('div');
+      item.className = 'pending-item';
+      item.innerHTML = `
+        <div class="pending-item-info">
+          <div class="pending-item-top">
+            <span class="pending-item-date">${fmtDateLabel(appt.date)}</span>
+            <span class="pending-item-time">${appt.time}</span>
+          </div>
+          <span class="pending-item-service">${appt.service || '—'}</span>
+        </div>
+        <div class="pending-item-actions">
+          <button class="btn-pending-confirm" onclick="confirmAppointment('${appt.id}','${appt.date}','${appt.time}')">
+            <i class="ph ph-check"></i> Confirmar
+          </button>
+          <button class="btn-pending-reject" onclick="rejectAppointment('${appt.id}','${appt.date}','${appt.time}')">
+            <i class="ph ph-x"></i> Recusar
+          </button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+
+  } catch (e) {
+    console.warn('[KV] loadPendingAppointments falhou:', e.message);
+  }
+}
+
+async function confirmAppointment(id, dateStr, time) {
+  const btn = event.currentTarget;
+  btn.disabled = true;
+
+  try {
+    await db.collection('appointments').doc(id).update({ status: 'confirmed' });
+
+    await db.collection('bookedSlots').doc(dateStr).set(
+      { times: firebase.firestore.FieldValue.arrayUnion(time) },
+      { merge: true }
+    );
+
+    bookedCache[dateStr] = true;
+    applyMonthDataToCalendar();
+    loadPendingAppointments();
+    loadUpcomingAppointments();
+    if (selectedDayStr === dateStr) loadAppointmentsForDay(dateStr);
+
+  } catch (err) {
+    alert('Erro ao confirmar agendamento.');
+    console.error(err);
+    btn.disabled = false;
+  }
+}
+
+async function rejectAppointment(id, dateStr, time) {
+  if (!confirm('Recusar e remover esta solicitação?')) return;
+
+  try {
+    await db.collection('appointments').doc(id).delete();
+    loadPendingAppointments();
+    if (selectedDayStr === dateStr) loadAppointmentsForDay(dateStr);
+
+  } catch (err) {
+    alert('Erro ao recusar agendamento.');
+    console.error(err);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRÓXIMOS AGENDAMENTOS
+   ═══════════════════════════════════════════════════════════════ */
+
+async function loadUpcomingAppointments() {
+  const list  = document.getElementById('upcoming-list');
+  const count = document.getElementById('upcoming-count');
+  list.innerHTML = '<p class="upcoming-empty">Carregando…</p>';
+
+  const today = fmtDateAdmin(new Date());
+
+  try {
+    const snap = await db.collection('appointments')
+      .where('date', '>=', today)
+      .orderBy('date')
+      .limit(50)
+      .get();
+
+    const appts = [];
+    snap.forEach(doc => {
+      const d = doc.data();
+      /* Exclui pendentes — eles aparecem na seção própria */
+      if (d.status !== 'pending') appts.push({ id: doc.id, ...d });
+    });
+    appts.sort((a, b) => {
+      if (a.date !== b.date) return a.date.localeCompare(b.date);
+      return a.time.localeCompare(b.time);
+    });
+
+    count.textContent = appts.length > 0 ? `${appts.length} agendamento${appts.length !== 1 ? 's' : ''}` : '';
+    renderUpcomingList(appts);
+
+  } catch (e) {
+    console.warn('[KV] loadUpcomingAppointments falhou:', e.message);
+    /* Fallback sem índice composto */
+    try {
+      const snap2 = await db.collection('appointments').get();
+      const appts = [];
+      snap2.forEach(doc => {
+        const d = doc.data();
+        if (d.date >= today && d.status !== 'pending') appts.push({ id: doc.id, ...d });
+      });
+      appts.sort((a, b) => {
+        if (a.date !== b.date) return a.date.localeCompare(b.date);
+        return a.time.localeCompare(b.time);
+      });
+      const limited = appts.slice(0, 50);
+      count.textContent = limited.length > 0 ? `${limited.length} agendamento${limited.length !== 1 ? 's' : ''}` : '';
+      renderUpcomingList(limited);
+    } catch (e2) {
+      console.warn('[KV] loadUpcomingAppointments fallback falhou:', e2.message);
+      list.innerHTML = '<p class="upcoming-empty">Erro ao carregar agendamentos.</p>';
+    }
+  }
+}
+
+function renderUpcomingList(appts) {
+  const list = document.getElementById('upcoming-list');
+
+  if (appts.length === 0) {
+    list.innerHTML = '<p class="upcoming-empty">Nenhum agendamento futuro.</p>';
+    return;
+  }
+
+  list.innerHTML = '';
+  let currentDate = '';
+
+  appts.forEach(appt => {
+    if (appt.date !== currentDate) {
+      currentDate = appt.date;
+      const divider = document.createElement('div');
+      divider.className   = 'upcoming-date-divider';
+      divider.textContent = fmtDateLabel(appt.date);
+      list.appendChild(divider);
+    }
+
+    const item = document.createElement('div');
+    item.className = 'upcoming-item';
+    item.innerHTML = `
+      <span class="upcoming-time">${appt.time}</span>
+      <div class="upcoming-info">
+        <span class="upcoming-client">${appt.client || 'Cliente não informado'}</span>
+        ${appt.service ? `<span class="upcoming-service">${appt.service}</span>` : ''}
+        ${appt.notes   ? `<span class="upcoming-notes">${appt.notes}</span>` : ''}
+      </div>
+    `;
+    list.appendChild(item);
+  });
 }

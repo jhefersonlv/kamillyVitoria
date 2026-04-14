@@ -111,9 +111,37 @@
           <span class="legend-item">
             <span class="legend-dot legend-off"></span> Folga
           </span>
+          <span class="legend-item">
+            <span class="legend-dot legend-booked"></span> Com agendamento
+          </span>
         </div>
 
       </div>
+
+      <!-- ── SOLICITAÇÕES PENDENTES ── -->
+      <div class="pending-wrap" id="pending-wrap" hidden>
+        <div class="pending-header">
+          <h3 class="pending-title">
+            <i class="ph ph-clock-countdown"></i> Solicitações Pendentes
+          </h3>
+          <span class="pending-badge" id="pending-badge"></span>
+        </div>
+        <div id="pending-list" class="pending-list"></div>
+      </div>
+
+      <!-- ── PRÓXIMOS AGENDAMENTOS ── -->
+      <div class="upcoming-wrap">
+        <div class="upcoming-header">
+          <h3 class="upcoming-title">
+            <i class="ph ph-calendar-check"></i> Próximos Agendamentos
+          </h3>
+          <span class="upcoming-count" id="upcoming-count"></span>
+        </div>
+        <div id="upcoming-list" class="upcoming-list">
+          <p class="upcoming-empty">Carregando…</p>
+        </div>
+      </div>
+
     </section>
 
     <!-- ── TAB: CONFIGURAÇÕES ── -->
@@ -199,7 +227,7 @@
         <div class="day-times-grid" id="day-times-grid"></div>
       </div>
 
-      <!-- Ações -->
+      <!-- Ações de disponibilidade -->
       <div class="day-panel-actions">
         <button class="btn-delete-config" onclick="deleteDayConfig()" id="btn-delete-config" hidden>
           <i class="ph ph-trash"></i> Remover personalização
@@ -207,6 +235,61 @@
         <button class="btn-save-day" onclick="saveDayConfig()" id="btn-save-day">
           <i class="ph ph-floppy-disk"></i> Salvar
         </button>
+      </div>
+
+      <!-- ── AGENDAMENTOS DO DIA ── -->
+      <div class="appt-section">
+        <div class="appt-section-header">
+          <h4 class="appt-section-title">
+            <i class="ph ph-calendar-check"></i> Agendamentos do dia
+          </h4>
+        </div>
+
+        <!-- Lista de agendamentos existentes -->
+        <div id="day-appt-list" class="day-appt-list">
+          <p class="appt-empty" id="day-appt-empty">Nenhum agendamento neste dia.</p>
+        </div>
+
+        <!-- Formulário novo agendamento -->
+        <div class="appt-form">
+          <p class="appt-form-title">
+            <i class="ph ph-plus-circle"></i> Registrar agendamento
+          </p>
+          <div class="appt-form-fields">
+            <div class="appt-field">
+              <label>Horário</label>
+              <select id="appt-time" class="appt-select">
+                <option value="">— selecione —</option>
+              </select>
+            </div>
+            <div class="appt-field">
+              <label>Cliente <span class="optional">(opcional)</span></label>
+              <input type="text" id="appt-client" class="appt-input"
+                placeholder="Nome da cliente" maxlength="60" />
+            </div>
+            <div class="appt-field">
+              <label>Serviço <span class="optional">(opcional)</span></label>
+              <select id="appt-service" class="appt-select">
+                <option value="">— selecione —</option>
+                <option>Pé</option>
+                <option>Mão</option>
+                <option>Blindagem</option>
+                <option>Esmaltação em Gel</option>
+                <option>Molde F1</option>
+                <option>Tips</option>
+                <option>Fibra</option>
+              </select>
+            </div>
+            <div class="appt-field">
+              <label>Observação <span class="optional">(opcional)</span></label>
+              <input type="text" id="appt-notes" class="appt-input"
+                placeholder="Ex: confirmado, aguardando…" maxlength="80" />
+            </div>
+          </div>
+          <button class="btn-add-appt" onclick="addAppointment()">
+            <i class="ph ph-check"></i> Registrar
+          </button>
+        </div>
       </div>
 
     </div>
