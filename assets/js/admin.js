@@ -525,6 +525,14 @@ function renderDayAppointments(appts, dateStr) {
       : `<span class="appt-client${appt.client ? '' : ' appt-client--anon'}">${appt.client || 'Cliente não informado'}</span>`;
 
     const serviceText = appt.service || '';
+    /* notes guarda o WhatsApp quando veio do site */
+    const notesLabel  = appt.notes
+      ? (appt.source === 'site'
+          ? `<a class="appt-phone" href="https://wa.me/55${appt.notes.replace(/\D/g,'')}" target="_blank" rel="noopener">
+               <i class="ph ph-whatsapp-logo"></i> ${appt.notes}
+             </a>`
+          : `<span class="appt-notes">${appt.notes}</span>`)
+      : '';
 
     const actions = isPending
       ? `<div class="appt-item-pending-btns">
@@ -546,7 +554,7 @@ function renderDayAppointments(appts, dateStr) {
         <div class="appt-item-info">
           ${clientLabel}
           ${serviceText ? `<span class="appt-service">${serviceText}</span>` : ''}
-          ${appt.notes  ? `<span class="appt-notes">${appt.notes}</span>` : ''}
+          ${notesLabel}
         </div>
       </div>
       ${actions}
@@ -719,13 +727,21 @@ async function loadPendingAppointments() {
     appts.forEach(appt => {
       const item = document.createElement('div');
       item.className = 'pending-item';
+      const pendingPhone = appt.notes
+        ? `<a class="pending-item-phone" href="https://wa.me/55${appt.notes.replace(/\D/g,'')}" target="_blank" rel="noopener">
+             <i class="ph ph-whatsapp-logo"></i> ${appt.notes}
+           </a>`
+        : '';
+
       item.innerHTML = `
         <div class="pending-item-info">
           <div class="pending-item-top">
             <span class="pending-item-date">${fmtDateLabel(appt.date)}</span>
             <span class="pending-item-time">${appt.time}</span>
           </div>
+          ${appt.client ? `<span class="pending-item-client">${appt.client}</span>` : ''}
           <span class="pending-item-service">${appt.service || '—'}</span>
+          ${pendingPhone}
         </div>
         <div class="pending-item-actions">
           <button class="btn-pending-confirm" onclick="confirmAppointment('${appt.id}','${appt.date}','${appt.time}')">
@@ -859,6 +875,12 @@ function renderUpcomingList(appts) {
       list.appendChild(divider);
     }
 
+    const phoneLink = (appt.notes && appt.source === 'site')
+      ? `<a class="upcoming-phone" href="https://wa.me/55${appt.notes.replace(/\D/g,'')}" target="_blank" rel="noopener">
+           <i class="ph ph-whatsapp-logo"></i> ${appt.notes}
+         </a>`
+      : (appt.notes ? `<span class="upcoming-notes">${appt.notes}</span>` : '');
+
     const item = document.createElement('div');
     item.className = 'upcoming-item';
     item.innerHTML = `
@@ -866,7 +888,7 @@ function renderUpcomingList(appts) {
       <div class="upcoming-info">
         <span class="upcoming-client">${appt.client || 'Cliente não informado'}</span>
         ${appt.service ? `<span class="upcoming-service">${appt.service}</span>` : ''}
-        ${appt.notes   ? `<span class="upcoming-notes">${appt.notes}</span>` : ''}
+        ${phoneLink}
       </div>
     `;
     list.appendChild(item);

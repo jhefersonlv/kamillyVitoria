@@ -113,6 +113,13 @@ function closeModal() {
   backdrop.classList.remove('open');
   backdrop.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
+  /* Limpa campos do cliente */
+  const nameEl  = document.getElementById('client-name');
+  const phoneEl = document.getElementById('client-phone');
+  const errEl   = document.getElementById('client-error');
+  if (nameEl)  { nameEl.value  = ''; nameEl.classList.remove('input-error'); }
+  if (phoneEl) { phoneEl.value = ''; phoneEl.classList.remove('input-error'); }
+  if (errEl)   { errEl.hidden  = true; }
 }
 
 // Close on backdrop click
@@ -391,15 +398,49 @@ async function finalizeOnWhatsApp() {
     return;
   }
 
+  /* Valida campos do cliente */
+  const nameEl  = document.getElementById('client-name');
+  const phoneEl = document.getElementById('client-phone');
+  const errEl   = document.getElementById('client-error');
+  const name    = nameEl.value.trim();
+  const phone   = phoneEl.value.trim();
+
+  nameEl.classList.remove('input-error');
+  phoneEl.classList.remove('input-error');
+  errEl.hidden = true;
+
+  if (!name && !phone) {
+    nameEl.classList.add('input-error');
+    phoneEl.classList.add('input-error');
+    errEl.textContent = 'Por favor, informe seu nome e WhatsApp antes de continuar.';
+    errEl.hidden = false;
+    nameEl.focus();
+    return;
+  }
+  if (!name) {
+    nameEl.classList.add('input-error');
+    errEl.textContent = 'Por favor, informe seu nome.';
+    errEl.hidden = false;
+    nameEl.focus();
+    return;
+  }
+  if (!phone) {
+    phoneEl.classList.add('input-error');
+    errEl.textContent = 'Por favor, informe seu WhatsApp.';
+    errEl.hidden = false;
+    phoneEl.focus();
+    return;
+  }
+
   const dateStr = selectedDate.toLocaleDateString('pt-BR', {
     weekday: 'long', day: '2-digit', month: 'long', year: 'numeric'
   });
 
-  let serviceBlock;
   const services = selectedServices.length > 0
     ? selectedServices
     : [{ name: selectedService, price: null }];
 
+  let serviceBlock;
   if (selectedServices.length > 0) {
     let total = 0;
     let hasConsulta = false;
@@ -423,6 +464,8 @@ async function finalizeOnWhatsApp() {
     serviceBlock + '\n\n' +
     `*Data:* ${dateStr}\n` +
     `*Horário:* ${selectedTime}\n\n` +
+    `*Nome:* ${name}\n` +
+    `*WhatsApp:* ${phone}\n\n` +
     `Aguardo a confirmação. Obrigada! 🌸`;
 
   /* Salva agendamento pendente no Firestore — não bloqueia o WhatsApp */
@@ -430,10 +473,10 @@ async function finalizeOnWhatsApp() {
     await db.collection('appointments').add({
       date:     fmtDate(selectedDate),
       time:     selectedTime,
-      client:   '',
+      client:   name,
       service:  services.map(s => s.name).join(', '),
       services: services,
-      notes:    '',
+      notes:    phone,
       status:   'pending',
       source:   'site',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
