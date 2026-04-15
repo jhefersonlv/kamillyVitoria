@@ -282,10 +282,14 @@ em {
 }
 
 .site-header.scrolled {
-  background: rgba(245, 218, 218, 0.88);
+  background: var(--color-accent-dk);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   box-shadow: 0 2px 30px rgba(44, 31, 32, 0.10);
+
+  .logo-mark {
+    display: block;
+  }
 }
 
 .nav-container {
@@ -2411,10 +2415,16 @@ em {
     padding: 36px 18px 26px;
   }
 
+
+
   .preview-service {
     flex-direction: column;
     gap: 4px;
     text-align: center;
+  }
+
+  .logo-mark {
+    display: none;
   }
 
   .multiselect-total-bar {
