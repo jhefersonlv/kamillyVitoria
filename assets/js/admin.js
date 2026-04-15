@@ -122,9 +122,9 @@ async function renderAdminCalendar() {
   const label  = document.getElementById('admin-cal-label');
   label.textContent = `${PT_MONTHS[month]} ${year}`;
 
-  const daysEl    = document.getElementById('admin-cal-days');
-  const today     = new Date(); today.setHours(0,0,0,0);
-  const firstDay  = new Date(year, month, 1).getDay();
+  const daysEl      = document.getElementById('admin-cal-days');
+  const today       = new Date(); today.setHours(0,0,0,0);
+  const firstDay    = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   daysEl.innerHTML = '';
@@ -136,7 +136,7 @@ async function renderAdminCalendar() {
     daysEl.appendChild(el);
   }
 
-  /* Dias — renderiza sincronamente com skeleton */
+  /* Dias — renderiza sincronamente */
   for (let d = 1; d <= daysInMonth; d++) {
     const date     = new Date(year, month, d);
     const isPast   = date < today;
@@ -422,7 +422,6 @@ function addCustomTime() {
   const val   = input.value;
   if (!val) return;
 
-  /* Adiciona na lista e re-renderiza */
   const currentTimes = [...document.querySelectorAll('#config-times-grid input')]
     .filter(cb => cb.checked).map(cb => cb.value);
 
@@ -708,8 +707,17 @@ async function loadPendingAppointments() {
       .where('status', '==', 'pending')
       .get();
 
+    const today = fmtDateAdmin(new Date());
+
     const appts = [];
-    snap.forEach(doc => appts.push({ id: doc.id, ...doc.data() }));
+    snap.forEach(doc => {
+      const d = doc.data();
+      /* ✅ FILTRO: ignora pendentes cuja data já passou */
+      if (d.date >= today) {
+        appts.push({ id: doc.id, ...d });
+      }
+    });
+
     appts.sort((a, b) => {
       if (a.date !== b.date) return a.date.localeCompare(b.date);
       return a.time.localeCompare(b.time);
@@ -720,9 +728,9 @@ async function loadPendingAppointments() {
       return;
     }
 
-    wrap.hidden     = false;
+    wrap.hidden       = false;
     badge.textContent = `${appts.length} nova${appts.length !== 1 ? 's' : ''}`;
-    list.innerHTML  = '';
+    list.innerHTML    = '';
 
     appts.forEach(appt => {
       const item = document.createElement('div');

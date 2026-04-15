@@ -5,20 +5,33 @@
 'use strict';
 
 /* ─── CONFIG ──────────────────────────────────────────────────── */
-// 🔧 SUBSTITUA pelo número real com DDI (ex: 5511999999999)
 const WHATSAPP_NUMBER = '5511975199771';
 
 /* ─── SERVIÇOS ────────────────────────────────────────────────── */
+/* Serviços avulsos — exibidos nos cards e no multi-select */
 const SERVICES_LIST = [
-  { id: 'pe', name: 'Pé', price: 35 },
-  { id: 'mao', name: 'Mão', price: 25 },
-  { id: 'blindagem', name: 'Blindagem', price: null },
-  { id: 'gel', name: 'Esmaltação em Gel', price: null },
-  { id: 'molde-f1', name: 'Molde F1', price: 55 },
-  { id: 'tips', name: 'Tips', price: 60 },
-  { id: 'fibra', name: 'Fibra', price: 90 },
+  /* Mão e Pé Natural */
+  { id: 'pe',        name: 'Pé',               price: 35,  category: 'natural' },
+  { id: 'mao',       name: 'Mão',              price: 25,  category: 'natural' },
+  /* Unha em Gel */
+  { id: 'blindagem', name: 'Blindagem',         price: 55,  category: 'gel' },
+  { id: 'gel',       name: 'Esmaltação em Gel', price: 60,  category: 'gel' },
+  { id: 'molde-f1',  name: 'Molde F1',          price: 90,  category: 'gel' },
+  { id: 'tips',      name: 'Tips',              price: 100, category: 'gel' },
+  { id: 'fibra',     name: 'Fibra',             price: 110, category: 'gel' },
 ];
-/* Fallback estático — substituído pelos dados do Firebase quando disponível */
+
+/* Pacotes — vão direto pro agendamento sem o modal de desconto */
+const PACKAGES_LIST = [
+  { id: 'pkg-pe-mao',           name: 'Pé e Mão',                                           price: 55  },
+  { id: 'pkg-pe-mao-mensal',    name: 'Pé e Mão Mensal',                                    price: 150 },
+  { id: 'pkg-blind-gel',        name: 'Blindagem + Esmaltação em Gel',                       price: 110 },
+  { id: 'pkg-pe-com-mao-gel',   name: 'Pé Esmaltação Comum + Mão Esmaltação em Gel',        price: 95  },
+  { id: 'pkg-pe-com-mao-blind', name: 'Pé Esmaltação Comum + Mão Blindagem',                price: 90  },
+  { id: 'pkg-pe-com-mao-tudo',  name: 'Pé Esmaltação Comum + Mão Blindagem + Gel',          price: 150 },
+];
+
+/* Fallback estático de horários */
 const AVAILABLE_TIMES = [
   '08:00', '09:00', '10:00', '11:00',
   '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
@@ -27,7 +40,7 @@ const AVAILABLE_TIMES = [
 /* ─── SCHEDULE CONFIG (carregado do Firebase) ────────────────── */
 let scheduleConfig = {
   defaultTimes: [...AVAILABLE_TIMES],
-  workDays: [1, 2, 3, 4, 5, 6]   // 0=Dom … 6=Sáb
+  workDays: [1, 2, 3, 4, 5, 6]
 };
 
 async function loadScheduleConfig() {
@@ -39,12 +52,13 @@ async function loadScheduleConfig() {
   }
 }
 
-/* Formata Date → 'YYYY-MM-DD' */
+/* ─── UTILITÁRIOS ────────────────────────────────────────────── */
 function fmtDate(date) {
   return `${date.getFullYear()}-` +
     `${String(date.getMonth() + 1).padStart(2, '0')}-` +
     `${String(date.getDate()).padStart(2, '0')}`;
 }
+
 const PT_MONTHS = [
   'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
   'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
@@ -54,10 +68,15 @@ const PT_DAYS_FULL = [
   'Quinta-feira', 'Sexta-feira', 'Sábado'
 ];
 
+function formatPrice(price) {
+  if (price === null) return 'A consultar';
+  return 'R$ ' + price.toFixed(2).replace('.', ',');
+}
+
 /* ─── STATE ───────────────────────────────────────────────────── */
 let currentStep      = 1;
-let selectedService  = null;   // fluxo legado (botão "Agendar" do nav)
-let selectedServices = [];     // array { name, price } — fluxo dos cards
+let selectedService  = null;
+let selectedServices = [];
 let selectedDate     = null;
 let selectedTime     = null;
 let calendarDate     = new Date();
@@ -66,20 +85,19 @@ let pendingService = null;
 let pendingPrice   = null;
 
 /* ─── DOM REFS ────────────────────────────────────────────────── */
-const backdrop = document.getElementById('modal-backdrop');
-const modal = document.getElementById('booking-modal');
-const step1Next = document.getElementById('step1-next');
-const step2Next = document.getElementById('step2-next');
-const calDays = document.getElementById('cal-days');
-const calLabel = document.getElementById('cal-month-label');
+const backdrop     = document.getElementById('modal-backdrop');
+const modal        = document.getElementById('booking-modal');
+const step1Next    = document.getElementById('step1-next');
+const step2Next    = document.getElementById('step2-next');
+const calDays      = document.getElementById('cal-days');
+const calLabel     = document.getElementById('cal-month-label');
 const timeSlotsWrap = document.getElementById('time-slots-section');
-const timeSlotsEl = document.getElementById('time-slots');
+const timeSlotsEl  = document.getElementById('time-slots');
 const hamburgerBtn = document.getElementById('hamburger-btn');
-const navLinks = document.getElementById('nav-links');
+const navLinks     = document.getElementById('nav-links');
 
 /* ─── MODAL ───────────────────────────────────────────────────── */
 function openModal(preselect) {
-  // Reset state
   currentStep = 1;
   selectedDate = null;
   selectedTime = null;
@@ -88,9 +106,7 @@ function openModal(preselect) {
   if (preselect) {
     selectedService = preselect;
     const radios = document.querySelectorAll('input[name="service"]');
-    radios.forEach(r => {
-      r.checked = (r.value === preselect);
-    });
+    radios.forEach(r => { r.checked = (r.value === preselect); });
     step1Next.disabled = false;
   } else {
     selectedService = null;
@@ -105,7 +121,6 @@ function openModal(preselect) {
   backdrop.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
 
-  // Focus trap
   setTimeout(() => modal.querySelector('.modal-close').focus(), 350);
 }
 
@@ -113,7 +128,6 @@ function closeModal() {
   backdrop.classList.remove('open');
   backdrop.setAttribute('aria-hidden', 'true');
   document.body.style.overflow = '';
-  /* Limpa campos do cliente */
   const nameEl  = document.getElementById('client-name');
   const phoneEl = document.getElementById('client-phone');
   const errEl   = document.getElementById('client-error');
@@ -122,12 +136,7 @@ function closeModal() {
   if (errEl)   { errEl.hidden  = true; }
 }
 
-// Close on backdrop click
-backdrop.addEventListener('click', e => {
-  if (e.target === backdrop) closeModal();
-});
-
-// Close on Escape
+backdrop.addEventListener('click', e => { if (e.target === backdrop) closeModal(); });
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape' && backdrop.classList.contains('open')) closeModal();
 });
@@ -136,8 +145,7 @@ document.addEventListener('keydown', e => {
 function showStep(n) {
   currentStep = n;
   [1, 2, 3].forEach(i => {
-    const el = document.getElementById(`modal-step-${i}`);
-    el.classList.toggle('hidden', i !== n);
+    document.getElementById(`modal-step-${i}`).classList.toggle('hidden', i !== n);
   });
   updateStepDots();
   modal.scrollTo({ top: 0, behavior: 'smooth' });
@@ -145,14 +153,12 @@ function showStep(n) {
 
 function updateStepDots() {
   [1, 2, 3].forEach(i => {
-    const dot = document.getElementById(`step-dot-${i}`);
+    const dot  = document.getElementById(`step-dot-${i}`);
     const line = document.getElementById(`step-line-${i}`);
     dot.classList.remove('active', 'done');
     if (i < currentStep) dot.classList.add('done');
     else if (i === currentStep) dot.classList.add('active');
-    if (line) {
-      line.classList.toggle('done', i < currentStep);
-    }
+    if (line) line.classList.toggle('done', i < currentStep);
   });
 }
 
@@ -165,27 +171,17 @@ function goToStep(n) {
   showStep(n);
 }
 
-/* ─── SERVICE SELECTION ──────────────────────────────────────── */
+/* ─── SERVICE SELECTION (fluxo legado via nav) ───────────────── */
 document.querySelectorAll('input[name="service"]').forEach(radio => {
   radio.addEventListener('change', () => {
     selectedService = radio.value;
     step1Next.disabled = false;
-
-    // Update visual selection on labels
-    document.querySelectorAll('.service-option').forEach(opt => {
-      opt.classList.remove('selected');
-    });
-    radio.closest('.service-option').classList.add('selected');
   });
 });
 
 /* ─── CALENDAR ───────────────────────────────────────────────── */
 function changeMonth(dir) {
   calendarDate = new Date(calendarDate.getFullYear(), calendarDate.getMonth() + dir, 1);
-  selectedDate = null;
-  selectedTime = null;
-  timeSlotsWrap.hidden = true;
-  step2Next.disabled = true;
   renderCalendar();
 }
 
@@ -194,19 +190,16 @@ function renderCalendar() {
   const month = calendarDate.getMonth();
   calLabel.textContent = `${PT_MONTHS[month]} ${year}`;
 
-  const today       = new Date();
-  today.setHours(0, 0, 0, 0);
-  const firstDay    = new Date(year, month, 1).getDay();
+  const today      = new Date(); today.setHours(0, 0, 0, 0);
+  const firstDay   = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   calDays.innerHTML = '';
 
   for (let i = 0; i < firstDay; i++) {
-    const empty = document.createElement('button');
-    empty.className = 'cal-day cal-day--empty';
-    empty.tabIndex  = -1;
-    empty.setAttribute('aria-hidden', 'true');
-    calDays.appendChild(empty);
+    const el = document.createElement('div');
+    el.className = 'cal-day cal-day--empty';
+    calDays.appendChild(el);
   }
 
   for (let d = 1; d <= daysInMonth; d++) {
@@ -215,15 +208,14 @@ function renderCalendar() {
     const isOffDay  = !scheduleConfig.workDays.includes(date.getDay());
     const isToday   = date.toDateString() === today.toDateString();
     const isSelected = selectedDate && date.toDateString() === selectedDate.toDateString();
+    const dateStr   = fmtDate(date);
     const isDisabled = isPast || isOffDay;
 
     const btn = document.createElement('button');
     btn.className = 'cal-day';
     btn.textContent = d;
-    btn.dataset.dateStr = fmtDate(date);
-    btn.setAttribute('role', 'gridcell');
-    btn.setAttribute('aria-label',
-      `${d} de ${PT_MONTHS[month]} de ${year}${isDisabled ? ' (indisponível)' : ''}`);
+    btn.dataset.dateStr = dateStr;
+    btn.setAttribute('aria-label', `${d} de ${PT_MONTHS[month]}${isDisabled ? ' (indisponível)' : ''}`);
 
     if (isDisabled) { btn.classList.add('cal-day--disabled'); btn.disabled = true; }
     if (isToday)    btn.classList.add('cal-day--today');
@@ -235,30 +227,20 @@ function renderCalendar() {
     calDays.appendChild(btn);
   }
 
-  /* Overlay assíncrono: marca dias bloqueados no Firebase */
   applyBlockedDates(year, month);
 }
 
 async function applyBlockedDates(year, month) {
   try {
     const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-
-    /* Busca todos os docs do mês — filtra por prefixo no cliente */
     const snap = await db.collection('dateConfig').get();
-
     snap.forEach(docSnap => {
       if (!docSnap.id.startsWith(prefix)) return;
-
-      const data      = docSnap.data();
-      const isBlocked = data.blocked ||
-        (Array.isArray(data.times) && data.times.length === 0);
+      const data = docSnap.data();
+      const isBlocked = data.blocked || (Array.isArray(data.times) && data.times.length === 0);
       if (!isBlocked) return;
-
       const btn = calDays.querySelector(`[data-date-str="${docSnap.id}"]`);
-      if (btn && !btn.disabled) {
-        btn.classList.add('cal-day--disabled');
-        btn.disabled = true;
-      }
+      if (btn && !btn.disabled) { btn.classList.add('cal-day--disabled'); btn.disabled = true; }
     });
   } catch (e) {
     console.warn('[KV] applyBlockedDates falhou:', e.message);
@@ -273,7 +255,6 @@ async function selectDate(date, btn) {
   document.querySelectorAll('.cal-day').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
 
-  /* Mostra loading enquanto busca horários */
   timeSlotsWrap.hidden = false;
   timeSlotsEl.innerHTML = '<p class="slots-loading">Carregando horários…</p>';
 
@@ -302,7 +283,6 @@ async function fetchTimesForDate(date) {
 
   if (!times) times = [...scheduleConfig.defaultTimes];
 
-  /* Remove horários já com agendamento registrado pelo admin */
   try {
     const bookedSnap = await db.collection('bookedSlots').doc(dateStr).get();
     if (bookedSnap.exists && Array.isArray(bookedSnap.data().times)) {
@@ -319,13 +299,10 @@ async function fetchTimesForDate(date) {
 /* ─── TIME SLOTS ─────────────────────────────────────────────── */
 function renderTimeSlots(times) {
   timeSlotsEl.innerHTML = '';
-
   if (!times || times.length === 0) {
-    timeSlotsEl.innerHTML =
-      '<p class="slots-empty">Nenhum horário disponível para esta data.</p>';
+    timeSlotsEl.innerHTML = '<p class="slots-empty">Nenhum horário disponível para esta data.</p>';
     return;
   }
-
   times.forEach(t => {
     const btn = document.createElement('button');
     btn.className = 'time-slot';
@@ -345,11 +322,10 @@ function selectTime(time, btn) {
 
 /* ─── SUMMARY ────────────────────────────────────────────────── */
 function fillSummary() {
-  const listEl  = document.getElementById('summary-services-list');
+  const listEl    = document.getElementById('summary-services-list');
   const totalLine = document.getElementById('summary-total-line');
   const totalEl   = document.getElementById('summary-total');
 
-  // Serviços vindos dos cards
   if (selectedServices.length > 0) {
     let total = 0;
     let hasConsulta = false;
@@ -366,16 +342,14 @@ function fillSummary() {
     }).join('');
 
     if (selectedServices.length > 1) {
-      const totalStr = (hasConsulta
+      const totalStr = hasConsulta
         ? `R$ ${total.toFixed(2).replace('.', ',')} + A consultar`
-        : `R$ ${total.toFixed(2).replace('.', ',')}`);
+        : `R$ ${total.toFixed(2).replace('.', ',')}`;
       totalEl.textContent = totalStr;
       totalLine.hidden = false;
     } else {
       totalLine.hidden = true;
     }
-
-  // Fluxo legado (nav "Agendar")
   } else {
     listEl.innerHTML = `<span class="summary-service-row"><span>${selectedService || '—'}</span></span>`;
     totalLine.hidden = true;
@@ -386,7 +360,6 @@ function fillSummary() {
     document.getElementById('summary-date').textContent =
       selectedDate.toLocaleDateString('pt-BR', opts);
   }
-
   document.getElementById('summary-time').textContent = selectedTime || '—';
 }
 
@@ -398,7 +371,6 @@ async function finalizeOnWhatsApp() {
     return;
   }
 
-  /* Valida campos do cliente */
   const nameEl  = document.getElementById('client-name');
   const phoneEl = document.getElementById('client-phone');
   const errEl   = document.getElementById('client-error');
@@ -468,17 +440,16 @@ async function finalizeOnWhatsApp() {
     `*WhatsApp:* ${phone}\n\n` +
     `Aguardo a confirmação. Obrigada! 🌸`;
 
-  /* Salva agendamento pendente no Firestore — não bloqueia o WhatsApp */
   try {
     await db.collection('appointments').add({
-      date:     fmtDate(selectedDate),
-      time:     selectedTime,
-      client:   name,
-      service:  services.map(s => s.name).join(', '),
-      services: services,
-      notes:    phone,
-      status:   'pending',
-      source:   'site',
+      date:      fmtDate(selectedDate),
+      time:      selectedTime,
+      client:    name,
+      service:   services.map(s => s.name).join(', '),
+      services:  services,
+      notes:     phone,
+      status:    'pending',
+      source:    'site',
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (e) {
@@ -492,14 +463,210 @@ async function finalizeOnWhatsApp() {
   closeModal();
 }
 
+/* ─── ABRIR SELEÇÃO DE SERVIÇOS (nav/hero/portfólio) ─────────── */
+function openServiceSelect() {
+  pendingService = null;
+  pendingPrice   = null;
+  openMultiSelectModal();
+}
+
+/* ─── ABRIR BOOKING MODAL COM SERVIÇOS JÁ SELECIONADOS ──────── */
+function openBookingModal(services) {
+  selectedServices = services;
+  selectedDate     = null;
+  selectedTime     = null;
+  calendarDate     = new Date();
+
+  timeSlotsWrap.hidden = true;
+  step2Next.disabled   = true;
+
+  loadScheduleConfig().then(() => renderCalendar());
+  showStep(2);
+
+  backdrop.classList.add('open');
+  backdrop.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+
+  setTimeout(() => modal.querySelector('.modal-close').focus(), 350);
+}
+
+/* ─── VOLTAR DO STEP 2 ───────────────────────────────────────── */
+function goBackFromStep2() {
+  if (selectedServices.length > 0) {
+    selectedServices = [];
+    closeModal();
+  } else {
+    goToStep(1);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SERVIÇOS AVULSOS — clique no card
+   Exibe modal de desconto (quer adicionar mais serviços?)
+   ═══════════════════════════════════════════════════════════════ */
+function selectService(name, price) {
+  pendingService = name;
+  pendingPrice   = price;
+
+  const preview = document.getElementById('discount-service-preview');
+  preview.innerHTML =
+    `<div class="preview-service">` +
+    `<span class="preview-name">${name}</span>` +
+    `<span class="preview-price">${formatPrice(price)}</span>` +
+    `</div>`;
+
+  openDiscountModal();
+}
+
+/* ─── Modal de desconto ─────────────────────────────────────── */
+function openDiscountModal() {
+  const bd = document.getElementById('discount-backdrop');
+  bd.classList.add('open');
+  bd.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeDiscountModal() {
+  const bd = document.getElementById('discount-backdrop');
+  bd.classList.remove('open');
+  bd.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('discount-backdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('discount-backdrop')) closeDiscountModal();
+});
+
+function discountNo() {
+  closeDiscountModal();
+  openBookingModal([{ name: pendingService, price: pendingPrice }]);
+}
+
+function discountYes() {
+  closeDiscountModal();
+  openMultiSelectModal();
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PACOTES — clique no card
+   Vai direto pro agendamento (sem modal de desconto)
+   ═══════════════════════════════════════════════════════════════ */
+function selectPackage(name, price) {
+  openBookingModal([{ name, price }]);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MODAL DE SELEÇÃO MÚLTIPLA (serviços avulsos)
+   ═══════════════════════════════════════════════════════════════ */
+function openMultiSelectModal() {
+  const container = document.getElementById('multiselect-services');
+  container.innerHTML = '';
+
+  /* Agrupa por categoria */
+  const categories = [
+    { key: 'natural', label: 'Mão e Pé Natural' },
+    { key: 'gel',     label: 'Unha em Gel' },
+  ];
+
+  categories.forEach(cat => {
+    const items = SERVICES_LIST.filter(s => s.category === cat.key);
+    if (items.length === 0) return;
+
+    const header = document.createElement('p');
+    header.className = 'multiselect-category-label';
+    header.textContent = cat.label;
+    container.appendChild(header);
+
+    items.forEach(service => {
+      const isPreselected = service.name === pendingService;
+
+      const label = document.createElement('label');
+      label.className = 'multiselect-option' + (isPreselected ? ' multiselect-option--checked' : '');
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.name = 'multi-service';
+      cb.value = service.name;
+      cb.dataset.price = service.price !== null ? service.price : '';
+      cb.checked = isPreselected;
+
+      cb.addEventListener('change', function () {
+        this.closest('.multiselect-option').classList.toggle('multiselect-option--checked', this.checked);
+        updateMultiTotal();
+      });
+
+      const inner = document.createElement('div');
+      inner.className = 'multiselect-option-inner';
+      inner.innerHTML =
+        `<span class="multi-name">${service.name}</span>` +
+        `<span class="multi-price">${formatPrice(service.price)}</span>`;
+
+      label.appendChild(cb);
+      label.appendChild(inner);
+      container.appendChild(label);
+    });
+  });
+
+  updateMultiTotal();
+
+  const bd = document.getElementById('multiselect-backdrop');
+  bd.classList.add('open');
+  bd.setAttribute('aria-hidden', 'false');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeMultiSelectModal() {
+  const bd = document.getElementById('multiselect-backdrop');
+  bd.classList.remove('open');
+  bd.setAttribute('aria-hidden', 'true');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('multiselect-backdrop').addEventListener('click', e => {
+  if (e.target === document.getElementById('multiselect-backdrop')) closeMultiSelectModal();
+});
+
+function updateMultiTotal() {
+  const checked = document.querySelectorAll('#multiselect-services input[type="checkbox"]:checked');
+
+  let total = 0;
+  let hasConsulta = false;
+
+  checked.forEach(cb => {
+    if (cb.dataset.price !== '') total += parseFloat(cb.dataset.price);
+    else hasConsulta = true;
+  });
+
+  const totalEl   = document.getElementById('multiselect-total');
+  const totalBase = 'R$ ' + total.toFixed(2).replace('.', ',');
+  totalEl.textContent = hasConsulta ? totalBase + ' + A consultar' : totalBase;
+
+  document.getElementById('multiselect-confirm-btn').disabled = checked.length === 0;
+}
+
+function finalizeMultiSelect() {
+  const checked = document.querySelectorAll('#multiselect-services input[type="checkbox"]:checked');
+  if (checked.length === 0) return;
+
+  const services = [];
+  checked.forEach(cb => {
+    services.push({
+      name:  cb.value,
+      price: cb.dataset.price !== '' ? parseFloat(cb.dataset.price) : null
+    });
+  });
+
+  closeMultiSelectModal();
+  openBookingModal(services);
+}
+
 /* ─── NAV: SCROLL HEADER ─────────────────────────────────────── */
 const siteHeader = document.getElementById('site-header');
-
 function handleScroll() {
   siteHeader.classList.toggle('scrolled', window.scrollY > 50);
 }
 window.addEventListener('scroll', handleScroll, { passive: true });
-handleScroll(); // initial
+handleScroll();
 
 /* ─── NAV: HAMBURGER ─────────────────────────────────────────── */
 hamburgerBtn.addEventListener('click', () => {
@@ -509,7 +676,6 @@ hamburgerBtn.addEventListener('click', () => {
   document.body.style.overflow = isOpen ? 'hidden' : '';
 });
 
-// Close nav on link click
 navLinks.querySelectorAll('a, button').forEach(el => {
   el.addEventListener('click', () => {
     navLinks.classList.remove('open');
@@ -519,7 +685,6 @@ navLinks.querySelectorAll('a, button').forEach(el => {
   });
 });
 
-// Close nav on outside click
 document.addEventListener('click', e => {
   if (
     navLinks.classList.contains('open') &&
@@ -533,7 +698,7 @@ document.addEventListener('click', e => {
   }
 });
 
-/* ─── INTERSECTION OBSERVER (section reveals) ────────────────── */
+/* ─── INTERSECTION OBSERVER ──────────────────────────────────── */
 const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
@@ -561,198 +726,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
   });
 });
 
-/* ─── BENTO: staggered animation on view ─────────────────────── */
+/* ─── BENTO: staggered animation ────────────────────────────── */
 document.querySelectorAll('.bento-item').forEach((item, i) => {
   item.style.transitionDelay = `${i * 0.06}s`;
 });
-
-/* ═══════════════════════════════════════════════════════════════
-   FLUXO DE SERVIÇO COM DESCONTO
-   ═══════════════════════════════════════════════════════════════ */
-
-/* ─── Formatar preço ────────────────────────────────────────── */
-function formatPrice(price) {
-  if (price === null) return 'A consultar';
-  return 'R$ ' + price.toFixed(2).replace('.', ',');
-}
-
-/* ─── Abrir seleção de serviços sem pré-seleção (nav/hero/portfólio) */
-function openServiceSelect() {
-  pendingService = null;
-  pendingPrice   = null;
-  openMultiSelectModal();
-}
-
-/* ─── Abrir booking modal já com serviços selecionados ──────── */
-function openBookingModal(services) {
-  selectedServices = services;
-  selectedDate     = null;
-  selectedTime     = null;
-  calendarDate     = new Date();
-
-  timeSlotsWrap.hidden = true;
-  step2Next.disabled   = true;
-
-  loadScheduleConfig().then(() => renderCalendar());
-
-  // Vai direto para o step 2 (data/hora), marcando step 1 como concluído
-  showStep(2);
-
-  backdrop.classList.add('open');
-  backdrop.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-
-  setTimeout(() => modal.querySelector('.modal-close').focus(), 350);
-}
-
-/* ─── Voltar do step 2: fecha o modal (veio dos cards) ──────── */
-function goBackFromStep2() {
-  if (selectedServices.length > 0) {
-    // Veio dos cards — fecha o booking e limpa
-    selectedServices = [];
-    closeModal();
-  } else {
-    // Veio do fluxo legado
-    goToStep(1);
-  }
-}
-
-/* ─── 1. Clique no card do serviço ─────────────────────────── */
-function selectService(name, price) {
-  pendingService = name;
-  pendingPrice = price;
-
-  const preview = document.getElementById('discount-service-preview');
-  preview.innerHTML =
-    `<div class="preview-service">` +
-    `<span class="preview-name">${name}</span>` +
-    `<span class="preview-price">${formatPrice(price)}</span>` +
-    `</div>`;
-
-  openDiscountModal();
-}
-
-/* ─── Modal de desconto ─────────────────────────────────────── */
-function openDiscountModal() {
-  const bd = document.getElementById('discount-backdrop');
-  bd.classList.add('open');
-  bd.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeDiscountModal() {
-  const bd = document.getElementById('discount-backdrop');
-  bd.classList.remove('open');
-  bd.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-// Fechar ao clicar no fundo
-document.getElementById('discount-backdrop').addEventListener('click', e => {
-  if (e.target === document.getElementById('discount-backdrop')) closeDiscountModal();
-});
-
-/* ─── 2a. Usuário clica "Não" → booking modal com serviço único ─ */
-function discountNo() {
-  closeDiscountModal();
-  openBookingModal([{ name: pendingService, price: pendingPrice }]);
-}
-
-/* ─── 2b. Usuário clica "Sim" → Modal de seleção múltipla ───── */
-function discountYes() {
-  closeDiscountModal();
-  openMultiSelectModal();
-}
-
-/* ─── Modal de seleção múltipla ─────────────────────────────── */
-function openMultiSelectModal() {
-  const container = document.getElementById('multiselect-services');
-  container.innerHTML = '';
-
-  SERVICES_LIST.forEach(service => {
-    const isPreselected = service.name === pendingService;
-
-    const label = document.createElement('label');
-    label.className = 'multiselect-option' + (isPreselected ? ' multiselect-option--checked' : '');
-
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    cb.name = 'multi-service';
-    cb.value = service.name;
-    cb.dataset.price = service.price !== null ? service.price : '';
-    cb.checked = isPreselected;
-
-    cb.addEventListener('change', function () {
-      this.closest('.multiselect-option').classList.toggle('multiselect-option--checked', this.checked);
-      updateMultiTotal();
-    });
-
-    const inner = document.createElement('div');
-    inner.className = 'multiselect-option-inner';
-    inner.innerHTML =
-      `<span class="multi-name">${service.name}</span>` +
-      `<span class="multi-price">${formatPrice(service.price)}</span>`;
-
-    label.appendChild(cb);
-    label.appendChild(inner);
-    container.appendChild(label);
-  });
-
-  updateMultiTotal();
-
-  const bd = document.getElementById('multiselect-backdrop');
-  bd.classList.add('open');
-  bd.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
-}
-
-function closeMultiSelectModal() {
-  const bd = document.getElementById('multiselect-backdrop');
-  bd.classList.remove('open');
-  bd.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-}
-
-// Fechar ao clicar no fundo
-document.getElementById('multiselect-backdrop').addEventListener('click', e => {
-  if (e.target === document.getElementById('multiselect-backdrop')) closeMultiSelectModal();
-});
-
-/* ─── Atualizar total ao marcar/desmarcar ────────────────────── */
-function updateMultiTotal() {
-  const checked = document.querySelectorAll('#multiselect-services input[type="checkbox"]:checked');
-
-  let total = 0;
-  let hasConsulta = false;
-
-  checked.forEach(cb => {
-    if (cb.dataset.price !== '') {
-      total += parseFloat(cb.dataset.price);
-    } else {
-      hasConsulta = true;
-    }
-  });
-
-  const totalEl = document.getElementById('multiselect-total');
-  const totalBase = 'R$ ' + total.toFixed(2).replace('.', ',');
-  totalEl.textContent = hasConsulta ? totalBase + ' + A consultar' : totalBase;
-
-  document.getElementById('multiselect-confirm-btn').disabled = checked.length === 0;
-}
-
-/* ─── Finalizar seleção múltipla → booking modal ────────────── */
-function finalizeMultiSelect() {
-  const checked = document.querySelectorAll('#multiselect-services input[type="checkbox"]:checked');
-  if (checked.length === 0) return;
-
-  const services = [];
-  checked.forEach(cb => {
-    services.push({
-      name:  cb.value,
-      price: cb.dataset.price !== '' ? parseFloat(cb.dataset.price) : null
-    });
-  });
-
-  closeMultiSelectModal();
-  openBookingModal(services);
-}

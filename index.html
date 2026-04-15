@@ -168,127 +168,257 @@
         <p class="section-desc">Selecione o serviço ideal e agende com praticidade pelo WhatsApp.</p>
       </div>
 
-      <div class="services-grid" role="list">
+      <!-- ── Mão e Pé Natural ── -->
+      <div class="services-category">
+        <h3 class="services-category-title">
+          <i class="ph ph-hand-waving"></i> Mão e Pé Natural
+        </h3>
+        <div class="services-grid" role="list">
 
-        <!-- CARD: Pé — trocar src pela foto do serviço de pé -->
-        <article class="service-card" role="listitem">
-          <div class="service-card-img">
-            <img src="assets/img/service-pe.jpg" alt="Serviço de pé – Kamilly Vitória Beauty Art" loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-foot-prints"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Pé</h3>
-            <p class="service-price">R$ 35,00</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Pé', 35)" aria-label="Agendar Pé">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
+          <article class="service-card" role="listitem">
+            <div class="service-card-img">
+              <img src="assets/img/service-pe.jpg" alt="Pé natural" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-foot-prints"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Pé</h3>
+              <p class="service-price">R$ 35,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Pé', 35)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
 
-        <!-- CARD: Mão — trocar src pela foto do serviço de mão -->
-        <article class="service-card" role="listitem">
-          <div class="service-card-img">
-            <img src="assets/img/service-mao.jpeg" alt="Serviço de mão – Kamilly Vitória Beauty Art" loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-hand"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Mão</h3>
-            <p class="service-price">R$ 25,00</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Mão', 25)" aria-label="Agendar Mão">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
+          <article class="service-card" role="listitem">
+            <div class="service-card-img">
+              <img src="assets/img/service-mao.jpeg" alt="Mão natural" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-hand"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Mão</h3>
+              <p class="service-price">R$ 25,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Mão', 25)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
 
-        <!-- CARD: Blindagem — trocar src pela foto do serviço de blindagem -->
-        <article class="service-card" role="listitem">
-          <div class="service-card-img">
-            <img src="assets/img/service-blindagem.jpeg" alt="Blindagem de unhas – Kamilly Vitória Beauty Art"
-              loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-shield-check"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Blindagem</h3>
-            <p class="service-price service-price--consult">A consultar</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Blindagem', null)" aria-label="Agendar Blindagem">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
-
-        <!-- CARD: Esmaltação em Gel — trocar src pela foto do serviço -->
-        <article class="service-card service-card--highlight" role="listitem">
-          <div class="service-badge">Mais popular</div>
-          <div class="service-card-img">
-            <img src="assets/img/esmaltacao-gel.jpeg" alt="Esmaltação em gel – Kamilly Vitória Beauty Art"
-              loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-sparkle"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Esmaltação em Gel</h3>
-            <p class="service-price service-price--consult">A consultar</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Esmaltação em Gel', null)"
-            aria-label="Agendar Esmaltação em Gel">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
-
-        <!-- CARD: Molde F1 — trocar src pela foto do serviço -->
-        <article class="service-card" role="listitem">
-          <div class="service-card-img">
-            <img src="assets/img/molde-f1.jpeg" alt="Molde F1 – Kamilly Vitória Beauty Art" loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-star"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Molde F1</h3>
-            <p class="service-price">R$ 55,00</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Molde F1', 55)" aria-label="Agendar Molde F1">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
-
-        <!-- CARD: Tips — trocar src pela foto do serviço de tips -->
-        <article class="service-card" role="listitem">
-          <div class="service-card-img">
-            <img src="assets/img/service-tips.jpeg" alt="Tips de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-crown-simple"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Tips</h3>
-            <p class="service-price">R$ 60,00</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Tips', 60)" aria-label="Agendar Tips">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
-
-        <!-- CARD: Fibra — trocar src pela foto do serviço de fibra -->
-        <article class="service-card" role="listitem">
-          <div class="service-card-img">
-            <img src="assets/img/service-fibra.jpeg" alt="Fibra de unhas – Kamilly Vitória Beauty Art" loading="lazy" />
-            <div class="service-card-img-overlay" aria-hidden="true"></div>
-            <span class="service-icon-badge"><i class="ph ph-flower"></i></span>
-          </div>
-          <div class="service-body">
-            <h3 class="service-title">Fibra</h3>
-            <p class="service-price">R$ 90,00</p>
-          </div>
-          <button class="service-btn" onclick="selectService('Fibra', 90)" aria-label="Agendar Fibra">
-            Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
-          </button>
-        </article>
-
+        </div>
       </div>
+
+      <!-- ── Unha em Gel ── -->
+      <div class="services-category">
+        <h3 class="services-category-title">
+          <i class="ph ph-sparkle"></i> Unha em Gel
+        </h3>
+        <div class="services-grid" role="list">
+
+          <article class="service-card" role="listitem">
+            <div class="service-card-img">
+              <img src="assets/img/service-blindagem.jpeg" alt="Blindagem" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-shield-check"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Blindagem</h3>
+              <p class="service-price">R$ 55,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Blindagem', 55)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <article class="service-card service-card--highlight" role="listitem">
+            <div class="service-badge">Mais popular</div>
+            <div class="service-card-img">
+              <img src="assets/img/esmaltacao-gel.jpeg" alt="Esmaltação em Gel" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-sparkle"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Esmaltação em Gel</h3>
+              <p class="service-price">R$ 60,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Esmaltação em Gel', 60)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <article class="service-card" role="listitem">
+            <div class="service-card-img">
+              <img src="assets/img/molde-f1.jpeg" alt="Molde F1" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-star"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Molde F1</h3>
+              <p class="service-price">R$ 90,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Molde F1', 90)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <article class="service-card" role="listitem">
+            <div class="service-card-img">
+              <img src="assets/img/service-tips.jpeg" alt="Tips" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-crown-simple"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Tips</h3>
+              <p class="service-price">R$ 100,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Tips', 100)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <article class="service-card" role="listitem">
+            <div class="service-card-img">
+              <img src="assets/img/service-fibra.jpeg" alt="Fibra" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-flower"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Fibra</h3>
+              <p class="service-price">R$ 110,00</p>
+            </div>
+            <button class="service-btn" onclick="selectService('Fibra', 110)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+        </div>
+      </div>
+
+      <!-- ── Pacotes ── -->
+      <div class="services-category">
+        <h3 class="services-category-title">
+          <i class="ph ph-package"></i> Pacotes
+          <span class="services-category-badge">Economize!</span>
+        </h3>
+        <div class="services-grid services-grid--packages" role="list">
+
+          <!-- Pé e Mão — diagonal -->
+          <article class="service-card service-card--package" role="listitem">
+            <div class="service-card-img service-card-img--dual">
+              <img class="dual-img dual-img--left" src="assets/img/service-pe.jpg" alt="Pé" loading="lazy" />
+              <img class="dual-img dual-img--right" src="assets/img/service-mao.jpeg" alt="Mão" loading="lazy" />
+              <div class="dual-divider" aria-hidden="true"></div>
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-gift"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Pé e Mão</h3>
+              <p class="service-price">R$ 55,00</p>
+            </div>
+            <button class="service-btn" onclick="selectPackage('Pé e Mão', 55)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <!-- Pé e Mão Mensal — diagonal -->
+          <article class="service-card service-card--package" role="listitem">
+            <div class="service-card-img service-card-img--dual">
+              <img class="dual-img dual-img--left" src="assets/img/service-pe.jpg" alt="Pé" loading="lazy" />
+              <img class="dual-img dual-img--right" src="assets/img/service-mao.jpeg" alt="Mão" loading="lazy" />
+              <div class="dual-divider" aria-hidden="true"></div>
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-calendar-check"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Pé e Mão Mensal</h3>
+              <p class="service-price">R$ 150,00</p>
+            </div>
+            <button class="service-btn" onclick="selectPackage('Pé e Mão Mensal', 150)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <!-- Blindagem + Gel — diagonal -->
+          <article class="service-card service-card--package" role="listitem">
+            <div class="service-card-img service-card-img--dual">
+              <img class="dual-img dual-img--left" src="assets/img/service-blindagem.jpeg" alt="Blindagem"
+                loading="lazy" />
+              <img class="dual-img dual-img--right" src="assets/img/esmaltacao-gel.jpeg" alt="Gel" loading="lazy" />
+              <div class="dual-divider" aria-hidden="true"></div>
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-gift"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Blindagem + Esmaltação em Gel</h3>
+              <p class="service-price">R$ 110,00</p>
+            </div>
+            <button class="service-btn" onclick="selectPackage('Blindagem + Esmaltação em Gel', 110)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <!-- Pé Comum + Mão Gel — diagonal -->
+          <article class="service-card service-card--package" role="listitem">
+            <div class="service-card-img service-card-img--dual">
+              <img class="dual-img dual-img--left" src="assets/img/service-pe.jpg" alt="Pé" loading="lazy" />
+              <img class="dual-img dual-img--right" src="assets/img/esmaltacao-gel.jpeg" alt="Gel" loading="lazy" />
+              <div class="dual-divider" aria-hidden="true"></div>
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-gift"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Pé Comum + Mão Gel</h3>
+              <p class="service-price">R$ 95,00</p>
+            </div>
+            <button class="service-btn" onclick="selectPackage('Pé Esmaltação Comum + Mão Esmaltação em Gel', 95)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <!-- Pé Comum + Mão Blindagem — diagonal -->
+          <article class="service-card service-card--package" role="listitem">
+            <div class="service-card-img service-card-img--dual">
+              <img class="dual-img dual-img--left" src="assets/img/service-pe.jpg" alt="Pé" loading="lazy" />
+              <img class="dual-img dual-img--right" src="assets/img/service-blindagem.jpeg" alt="Blindagem"
+                loading="lazy" />
+              <div class="dual-divider" aria-hidden="true"></div>
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-gift"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Pé Comum + Mão Blindagem</h3>
+              <p class="service-price">R$ 90,00</p>
+            </div>
+            <button class="service-btn" onclick="selectPackage('Pé Esmaltação Comum + Mão Blindagem', 90)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+          <!-- Pé + Blindagem + Gel — três tiras verticais -->
+          <article class="service-card service-card--package" role="listitem">
+            <div class="service-card-img service-card-img--triple">
+              <img class="triple-img" src="assets/img/service-pe.jpg" alt="Pé" loading="lazy" />
+              <img class="triple-img" src="assets/img/service-blindagem.jpeg" alt="Blindagem" loading="lazy" />
+              <img class="triple-img" src="assets/img/esmaltacao-gel.jpeg" alt="Gel" loading="lazy" />
+              <div class="service-card-img-overlay" aria-hidden="true"></div>
+              <span class="service-icon-badge"><i class="ph ph-crown-simple"></i></span>
+            </div>
+            <div class="service-body">
+              <h3 class="service-title">Pé Comum + Mão Blindagem + Gel</h3>
+              <p class="service-price">R$ 150,00</p>
+            </div>
+            <button class="service-btn"
+              onclick="selectPackage('Pé Esmaltação Comum + Mão Blindagem + Esmaltação em Gel', 150)">
+              Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+            </button>
+          </article>
+
+        </div>
+      </div>
+
     </div>
   </section>
+
 
   <!-- ═══════════════════════ TESTIMONIALS ═══════════════════════ -->
   <section class="section testimonials-section" id="contact">
@@ -523,16 +653,16 @@
               <i class="ph ph-user" aria-hidden="true"></i> Seu nome
               <span class="client-required">*</span>
             </label>
-            <input type="text" id="client-name" class="client-input"
-              placeholder="Como você se chama?" maxlength="60" autocomplete="name" />
+            <input type="text" id="client-name" class="client-input" placeholder="Como você se chama?" maxlength="60"
+              autocomplete="name" />
           </div>
           <div class="client-field">
             <label for="client-phone">
               <i class="ph ph-whatsapp-logo" aria-hidden="true"></i> Seu WhatsApp
               <span class="client-required">*</span>
             </label>
-            <input type="tel" id="client-phone" class="client-input"
-              placeholder="(11) 99999-9999" maxlength="20" autocomplete="tel" />
+            <input type="tel" id="client-phone" class="client-input" placeholder="(11) 99999-9999" maxlength="20"
+              autocomplete="tel" />
           </div>
           <p class="client-error" id="client-error" hidden></p>
         </div>
