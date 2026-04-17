@@ -37,15 +37,149 @@ const AVAILABLE_TIMES = [
   '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'
 ];
 
-/* ─── SCHEDULE CONFIG (carregado do Firebase) ────────────────── */
+/* ─── SCHEDULE CONFIG (carregado do Orbit Tools) ─────────────── */
 let scheduleConfig = {
   defaultTimes: [...AVAILABLE_TIMES],
   workDays: [1, 2, 3, 4, 5, 6]
 };
 
+/* ─── SERVIÇOS dinâmicos (Orbit Tools) ───────────────────────── */
+async function loadServicesFromOrbit() {
+  try {
+    const snap = await db.collection('users').doc(TENANT_UID)
+                         .collection('sched_services')
+                         .orderBy('createdAt')
+                         .get();
+    if (snap.empty) return; /* mantém HTML estático se não tiver nada */
+
+    const services = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const avulsos  = services.filter(s => !s.isPackage);
+    const pacotes  = services.filter(s =>  s.isPackage);
+
+    /* Agrupa avulsos por categoria */
+    const cats = {};
+    avulsos.forEach(s => {
+      const cat = s.category || 'outros';
+      if (!cats[cat]) cats[cat] = [];
+      cats[cat].push(s);
+    });
+
+    /* Mapeia categoria → grid id do site */
+    const catGridMap = {
+      'natural': 'svc-grid-natural',
+      'gel':     'svc-grid-gel',
+    };
+
+    /* Renderiza avulsos nas grids corretas */
+    avulsos.forEach(s => {
+      const catKey  = (s.category || '').toLowerCase();
+      const gridId  = catGridMap[catKey];
+      const grid    = gridId ? document.getElementById(gridId) : null;
+      if (!grid) return;
+
+      /* Primeiro serviço dessa categoria → limpa HTML estático */
+      if (!grid.dataset.dynamic) {
+        grid.innerHTML = '';
+        grid.dataset.dynamic = '1';
+      }
+
+      grid.insertAdjacentHTML('beforeend', _buildServiceCard(s));
+    });
+
+    /* Renderiza pacotes */
+    if (pacotes.length > 0) {
+      const pkgGrid = document.getElementById('svc-grid-packages');
+      if (pkgGrid) {
+        pkgGrid.innerHTML = '';
+        pacotes.forEach(s => {
+          pkgGrid.insertAdjacentHTML('beforeend', _buildPackageCard(s));
+        });
+      }
+    }
+
+    /* Atualiza SERVICES_LIST e PACKAGES_LIST para o modal de agendamento */
+    window.SERVICES_LIST = avulsos.map(s => ({
+      id: s.id, name: s.name, price: s.price || null,
+      category: (s.category || '').toLowerCase()
+    }));
+    window.PACKAGES_LIST = pacotes.map(s => ({
+      id: s.id, name: s.name, price: s.price || null
+    }));
+
+  } catch (e) {
+    console.warn('[KV] loadServicesFromOrbit falhou, mantendo HTML estático:', e.message);
+  }
+}
+
+function _buildServiceCard(s) {
+  const price    = s.price ? `R$ ${Number(s.price).toFixed(2).replace('.', ',')}` : 'A consultar';
+  const imgSrc   = s.imageUrl || '';
+  const imgTag   = imgSrc
+    ? `<img src="${imgSrc}" alt="${_kvEsc(s.name)}" loading="lazy" />`
+    : `<div class="service-card-img-placeholder"><i class="ph ph-image"></i></div>`;
+  const badgeHtml = s.badge ? `<div class="service-badge">${_kvEsc(s.badge)}</div>` : '';
+  const highlight = s.badge ? ' service-card--highlight' : '';
+  return `
+    <article class="service-card${highlight}" role="listitem">
+      ${badgeHtml}
+      <div class="service-card-img">
+        ${imgTag}
+        <div class="service-card-img-overlay" aria-hidden="true"></div>
+        <span class="service-icon-badge"><i class="ph ph-sparkle"></i></span>
+      </div>
+      <div class="service-body">
+        <h3 class="service-title">${_kvEsc(s.name)}</h3>
+        <p class="service-price">${price}</p>
+      </div>
+      <button class="service-btn" onclick="selectService('${_kvEsc(s.name)}', ${s.price || null})">
+        Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+      </button>
+    </article>`;
+}
+
+function _buildPackageCard(s) {
+  const price  = s.price ? `R$ ${Number(s.price).toFixed(2).replace('.', ',')}` : 'A consultar';
+  const img1   = s.imageUrl  || '';
+  const img2   = s.imageUrl2 || s.imageUrl || '';
+
+  let imgHtml;
+  if (img1 && img2 && img1 !== img2) {
+    imgHtml = `
+      <img class="dual-img dual-img--left"  src="${img1}" alt="${_kvEsc(s.name)}" loading="lazy" />
+      <img class="dual-img dual-img--right" src="${img2}" alt="${_kvEsc(s.name)}" loading="lazy" />
+      <div class="dual-divider" aria-hidden="true"></div>`;
+  } else if (img1) {
+    imgHtml = `<img src="${img1}" alt="${_kvEsc(s.name)}" loading="lazy" />`;
+  } else {
+    imgHtml = `<div class="service-card-img-placeholder"><i class="ph ph-gift"></i></div>`;
+  }
+
+  return `
+    <article class="service-card service-card--package" role="listitem">
+      <div class="service-card-img ${img1 && img2 && img1 !== img2 ? 'service-card-img--dual' : ''}">
+        ${imgHtml}
+        <div class="service-card-img-overlay" aria-hidden="true"></div>
+        <span class="service-icon-badge"><i class="ph ph-gift"></i></span>
+      </div>
+      <div class="service-body">
+        <h3 class="service-title">${_kvEsc(s.name)}</h3>
+        <p class="service-price">${price}</p>
+      </div>
+      <button class="service-btn" onclick="selectPackage('${_kvEsc(s.name)}', ${s.price || null})">
+        Agendar <i class="ph ph-arrow-right" aria-hidden="true"></i>
+      </button>
+    </article>`;
+}
+
+/* Escapa strings para uso em atributos HTML inline */
+function _kvEsc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
 async function loadScheduleConfig() {
   try {
-    const snap = await db.collection('config').doc('schedule').get();
+    const snap = await db.collection('users').doc(TENANT_UID)
+                         .collection('sched_config').doc('main').get();
     if (snap.exists) scheduleConfig = { ...scheduleConfig, ...snap.data() };
   } catch (e) {
     console.warn('[KV] loadScheduleConfig falhou, usando padrão:', e.message);
@@ -233,12 +367,14 @@ function renderCalendar() {
 async function applyBlockedDates(year, month) {
   try {
     const prefix = `${year}-${String(month + 1).padStart(2, '0')}`;
-    const snap = await db.collection('dateConfig').get();
+    const snap = await db.collection('users').doc(TENANT_UID)
+                         .collection('sched_days')
+                         .where(firebase.firestore.FieldPath.documentId(), '>=', prefix)
+                         .where(firebase.firestore.FieldPath.documentId(), '<=', prefix + '\uf8ff')
+                         .get();
     snap.forEach(docSnap => {
-      if (!docSnap.id.startsWith(prefix)) return;
       const data = docSnap.data();
-      const isBlocked = data.blocked || (Array.isArray(data.times) && data.times.length === 0);
-      if (!isBlocked) return;
+      if (!data.blocked) return;
       const btn = calDays.querySelector(`[data-date-str="${docSnap.id}"]`);
       if (btn && !btn.disabled) { btn.classList.add('cal-day--disabled'); btn.disabled = true; }
     });
@@ -270,27 +406,34 @@ async function fetchTimesForDate(date) {
   const dateStr = fmtDate(date);
   let times = null;
 
+  /* Verifica se o dia está bloqueado ou tem horários customizados */
   try {
-    const snap = await db.collection('dateConfig').doc(dateStr).get();
+    const snap = await db.collection('users').doc(TENANT_UID)
+                         .collection('sched_days').doc(dateStr).get();
     if (snap.exists) {
       const data = snap.data();
       if (data.blocked) return [];
       if (Array.isArray(data.times) && data.times.length > 0) times = data.times;
     }
   } catch (e) {
-    console.warn('[KV] fetchTimesForDate dateConfig falhou:', e.message);
+    console.warn('[KV] fetchTimesForDate sched_days falhou:', e.message);
   }
 
   if (!times) times = [...scheduleConfig.defaultTimes];
 
+  /* Remove horários já agendados (que não sejam cancelados) */
   try {
-    const bookedSnap = await db.collection('bookedSlots').doc(dateStr).get();
-    if (bookedSnap.exists && Array.isArray(bookedSnap.data().times)) {
-      const booked = bookedSnap.data().times;
-      times = times.filter(t => !booked.includes(t));
-    }
+    const bookedSnap = await db.collection('users').doc(TENANT_UID)
+                                .collection('sched_bookings')
+                                .where('date', '==', dateStr)
+                                .get();
+    const booked = bookedSnap.docs
+      .map(d => d.data())
+      .filter(d => d.status !== 'cancelled')
+      .map(d => d.time);
+    times = times.filter(t => !booked.includes(t));
   } catch (e) {
-    console.warn('[KV] fetchTimesForDate bookedSlots falhou:', e.message);
+    console.warn('[KV] fetchTimesForDate sched_bookings falhou:', e.message);
   }
 
   return times;
@@ -441,19 +584,19 @@ async function finalizeOnWhatsApp() {
     `Aguardo a confirmação. Obrigada! 🌸`;
 
   try {
-    await db.collection('appointments').add({
-      date:      fmtDate(selectedDate),
-      time:      selectedTime,
-      client:    name,
-      service:   services.map(s => s.name).join(', '),
-      services:  services,
-      notes:     phone,
-      status:    'pending',
-      source:    'site',
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    await db.collection('users').doc(TENANT_UID).collection('sched_bookings').add({
+      clientName: name,
+      phone:      phone,
+      date:       fmtDate(selectedDate),
+      time:       selectedTime,
+      services:   services.map(s => s.name),
+      notes:      '',
+      status:     'pending',
+      source:     'client',
+      createdAt:  firebase.firestore.FieldValue.serverTimestamp()
     });
   } catch (e) {
-    console.warn('[KV] Erro ao registrar agendamento pendente:', e.message);
+    console.warn('[KV] Erro ao registrar agendamento:', e.message);
   }
 
   window.open(
@@ -480,7 +623,7 @@ function openBookingModal(services) {
   timeSlotsWrap.hidden = true;
   step2Next.disabled   = true;
 
-  loadScheduleConfig().then(() => renderCalendar());
+  renderCalendar();
   showStep(2);
 
   backdrop.classList.add('open');
@@ -730,3 +873,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
 document.querySelectorAll('.bento-item').forEach((item, i) => {
   item.style.transitionDelay = `${i * 0.06}s`;
 });
+
+/* ─── INIT: carrega serviços e config do Orbit Tools ─────────── */
+loadServicesFromOrbit();
+loadScheduleConfig();

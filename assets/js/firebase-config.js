@@ -1,19 +1,21 @@
 /* ═══════════════════════════════════════════════════════════════
    Kamilly Vitória | Beauty Art  ─  Firebase Config
-   🔧 PREENCHA com os dados do seu projeto no Firebase Console
+   Conectado ao Orbit Tools (WordVirtua) como tenant
    ═══════════════════════════════════════════════════════════════ */
 
+/* UID da Kamilly no Orbit Tools — identifica o tenant */
+const TENANT_UID = 'UNFTpC8GjHWauMNekPLYM9HhTQ03';
+
 const FIREBASE_CONFIG = {
-  apiKey: "AIzaSyBU92Mx34C-qTuV_jCsK4sQ_MbK25LNg4I",
-  authDomain: "kamilly-beauty-art.firebaseapp.com",
-  projectId: "kamilly-beauty-art",
-  storageBucket: "kamilly-beauty-art.firebasestorage.app",
-  messagingSenderId: "806664103449",
-  appId: "1:806664103449:web:5e9c1cfb671ea01fc36c88"
+  apiKey:            'AIzaSyCMl29LbQqrqqPQR8EKa1g8Cm4rHUwLWJA',
+  authDomain:        'orbit-tools-35189.firebaseapp.com',
+  projectId:         'orbit-tools-35189',
+  storageBucket:     'orbit-tools-35189.firebasestorage.app',
+  messagingSenderId: '4218159323',
+  appId:             '1:4218159323:web:bb017b569353468b4a4cfe',
 };
 
 firebase.initializeApp(FIREBASE_CONFIG);
 
-/* Exporta como globais para main.js e admin.js */
-const db = firebase.firestore();
+const db   = firebase.firestore();
 const auth = firebase.auth();
