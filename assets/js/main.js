@@ -584,7 +584,7 @@ async function finalizeOnWhatsApp() {
     `Aguardo a confirmação. Obrigada! 🌸`;
 
   try {
-    await db.collection('users').doc(TENANT_UID).collection('sched_bookings').add({
+    const docRef = await db.collection('users').doc(TENANT_UID).collection('sched_bookings').add({
       clientName: name,
       phone:      phone,
       date:       fmtDate(selectedDate),
@@ -595,8 +595,9 @@ async function finalizeOnWhatsApp() {
       source:     'client',
       createdAt:  firebase.firestore.FieldValue.serverTimestamp()
     });
+    console.log('[KV] Agendamento salvo:', docRef.id);
   } catch (e) {
-    console.warn('[KV] Erro ao registrar agendamento:', e.message);
+    console.error('[KV] ERRO ao salvar agendamento:', e.code, e.message);
   }
 
   window.open(
@@ -874,6 +875,5 @@ document.querySelectorAll('.bento-item').forEach((item, i) => {
   item.style.transitionDelay = `${i * 0.06}s`;
 });
 
-/* ─── INIT: carrega serviços e config do Orbit Tools ─────────── */
-loadServicesFromOrbit();
+/* ─── INIT: carrega config de horários do Orbit Tools ────────── */
 loadScheduleConfig();

@@ -4,7 +4,7 @@
    ═══════════════════════════════════════════════════════════════ */
 
 /* UID da Kamilly no Orbit Tools — identifica o tenant */
-const TENANT_UID = 'UNFTpC8GjHWauMNekPLYM9HhTQ03';
+const TENANT_UID = 'I3vNg9lUqwfD4qTyUdEAQ7NFEbG3';
 
 const FIREBASE_CONFIG = {
   apiKey:            'AIzaSyCMl29LbQqrqqPQR8EKa1g8Cm4rHUwLWJA',
